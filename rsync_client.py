@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import tempfile
+import shutil
 
 
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +20,7 @@ staging_snapshot_stamp_regexp = r'[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}'
 staging_snapshot_stamp = now.strftime(staging_snapshot_stamp_format)
 
 
-class RemoteRsyncStaging(object):
+class RsyncHost(object):
     def __init__(self,
                  mirror_name,
                  host,
@@ -28,7 +29,8 @@ class RemoteRsyncStaging(object):
                  files_dir='files',
                  save_last_days=61,
                  rsync_extra_params='-v',
-                 staging_postfix='staging'):
+                 staging_postfix='staging',
+                 init_directory_structure=True):
         self.mirror_name = mirror_name
         self.host = host
         self.module = module
@@ -50,6 +52,9 @@ class RemoteRsyncStaging(object):
                                format(staging_snapshot_stamp,
                                       staging_snapshot_stamp_regexp)
                                )
+
+        if init_directory_structure is True:
+            self.init_directory_structure()
 
     @property
     def url(self):
@@ -96,6 +101,29 @@ class RemoteRsyncStaging(object):
     @property
     def staging_link_url(self):
         return '{}/{}'.format(self.url, self.staging_link_path)
+
+    def init_directory_structure(self):
+        root_dir_present = self.rsync_ls_dirs(
+            '/',
+            pattern=r'^{}$'.format(self.root_path)
+        )[1]
+        root_dir_present = True if len(root_dir_present) > 0 else False
+        if root_dir_present is True:
+            files_dir_present = self.rsync_ls_dirs(
+                '{}/'.format(self.root_path),
+                pattern=r'^{}$'.format(self.files_dir)
+            )[1]
+            files_dir_present = True if len(files_dir_present) > 0 else False
+
+        if not root_dir_present or not files_dir_present:
+            dir_to_sync = tempfile.mkdtemp()
+            os.makedirs('{}/{}'.format(dir_to_sync, self.files_path))
+            self._do_rsync(
+                source='{}/'.format(dir_to_sync),
+                dest='{}/'.format(self.url),
+                opts='-a'
+            )
+            shutil.rmtree(dir_to_sync)
 
     @property
     def empty_dir(self):
