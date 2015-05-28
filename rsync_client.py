@@ -232,12 +232,15 @@ class RsyncHost(object):
     def _remove_old_snapshots(self, save_last_days=None):
         if save_last_days is None:
             save_last_days = self.save_last_days
-        if save_last_days is None \
-                or save_last_days is False \
-                or save_last_days == 0:
-            # skipping deletion if save_last_days == None or False or 0
-            logger.info('Skip deletion of old snapshots because of '
-                        'save_last_days == {}'.format(save_last_days))
+        if save_last_days is False:
+            # delete all snapshots
+            logger.info('Deletion all of the old snapshots '
+                        '(save_last_days == {})'.format(save_last_days))
+            save_last_days = -1
+        elif save_last_days == 0:
+            # skipping deletion
+            logger.info('Skip deletion of old snapshots '
+                        '(save_last_days == {})'.format(save_last_days))
             return
         warn_date = now - datetime.timedelta(days=save_last_days)
         warn_date = datetime.datetime.combine(warn_date, datetime.time(0))
