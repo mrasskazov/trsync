@@ -1,0 +1,159 @@
+# description format:
+# url:
+#   test_function_name_1: expected_result
+#   test_function_name_2: [expected, results]
+#   test_function_name_3:
+#     - expected
+#     - results
+'ubuntu@172.18.66.89:~':
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - 'ubuntu'
+    - '172.18.66.89'
+    - null
+    - '~'
+'johnivanov@172.18.66.89:/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - 'johnivanov'
+    - '172.18.66.89'
+    - null
+    - '/mirror-sync/otlichniy/reg/exp'
+'172.18.66.89:/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/mirror-sync/otlichniy/reg/exp'
+'172.18.66.89:/':
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'172.18.66.89:':
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'johnivanov@172.18.66.89::/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'rsync1'
+  parsed:
+    - 'johnivanov'
+    - '172.18.66.89'
+    - null
+    - '/mirror-sync/otlichniy/reg/exp'
+'172.18.66.89::/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'rsync1'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/mirror-sync/otlichniy/reg/exp'
+'172.18.66.89::/':
+  exact_match_num: 1
+  classed: 'rsync1'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'172.18.66.89::':
+  exact_match_num: 1
+  classed: 'rsync1'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed:
+    - 'mirror-sync'
+    - '172.18.66.89'
+    - 7327
+    - '/otlichniy/reg/exp'
+'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - 7327
+    - '/mirror-sync/otlichniy/reg/exp'
+'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp':
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/mirror-sync/otlichniy/reg/exp'
+'rsync://172.18.66.89/':
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'rsync://172.18.66.89':
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed:
+    - null
+    - '172.18.66.89'
+    - null
+    - '/'
+'/':
+  exact_match_num: 1
+  classed: 'path'
+  parsed:
+    - null
+    - null
+    - null
+    - '/'
+'dir':
+  exact_match_num: 1
+  classed: 'path'
+  parsed:
+    - null
+    - null
+    - null
+    - 'dir'
+'/dir':
+  exact_match_num: 1
+  classed: 'path'
+  parsed:
+    - null
+    - null
+    - null
+    - '/dir'
+'/dir/subdir/':
+  exact_match_num: 1
+  classed: 'path'
+  parsed:
+    - null
+    - null
+    - null
+    - '/dir/subdir/'
+'':
+  exact_match_num: 0
+  classed: null
+  parsed:
+    - null
+    - null
+    - null
+    - null
