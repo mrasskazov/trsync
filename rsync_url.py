@@ -21,7 +21,7 @@ class RsyncUrl(object):
                 r'(?P<user>[-\w]+@)?'
                 r'(?P<host>[-\.\w]+){1}'
                 r':'
-                r'(?P<path>[\w/-]*){1}'
+                r'(?P<path>(~{0,1}[\w/-]*)){1}'
                 r'$'
             ),
             # rsync: [USER@]HOST::SRC
@@ -45,7 +45,7 @@ class RsyncUrl(object):
             # local/path/to/directory
             'path': re.compile(
                 r'^'
-                r'(?P<path>[\w/-]+){1}'
+                r'(?P<path>(~{0,1}[\w/-]+)){1}'
                 r'$'
             ),
         }
