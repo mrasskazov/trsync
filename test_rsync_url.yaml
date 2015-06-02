@@ -89,15 +89,19 @@
   valid: False
 '172.18.66.89::':
   url: '172.18.66.89::'
-  exact_match_num: 1
-  classed: 'rsync1'
-  parsed_rsync:
-    - null
-    - '172.18.66.89'
-    - null
-    - null
-    - ''
+  exact_match_num: 0
+  classed: null
   valid: False
+  #url: '172.18.66.89::'
+  #exact_match_num: 1
+  #classed: 'rsync1'
+  #parsed_rsync:
+  #  - null
+  #  - '172.18.66.89'
+  #  - null
+  #  - null
+  #  - ''
+  #valid: False
 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
   url: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
   exact_match_num: 1
