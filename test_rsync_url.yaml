@@ -6,154 +6,191 @@
 #     - expected
 #     - results
 'ubuntu@172.18.66.89:~':
+  url: 'ubuntu@172.18.66.89:~'
   exact_match_num: 1
   classed: 'ssh'
   parsed:
     - 'ubuntu'
     - '172.18.66.89'
-    - null
     - '~'
+  valid: True
 'johnivanov@172.18.66.89:/mirror-sync/otlichniy/reg/exp':
+  url: 'johnivanov@172.18.66.89:/mirror-sync/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'ssh'
   parsed:
     - 'johnivanov'
     - '172.18.66.89'
-    - null
     - '/mirror-sync/otlichniy/reg/exp'
+  valid: True
 '172.18.66.89:/mirror-sync/otlichniy/reg/exp':
+  url: '172.18.66.89:/mirror-sync/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'ssh'
   parsed:
     - null
     - '172.18.66.89'
-    - null
     - '/mirror-sync/otlichniy/reg/exp'
+  valid: True
 '172.18.66.89:/':
+  url: '172.18.66.89:/'
   exact_match_num: 1
   classed: 'ssh'
   parsed:
     - null
     - '172.18.66.89'
-    - null
     - '/'
+  valid: True
 '172.18.66.89:':
+  url: '172.18.66.89:'
   exact_match_num: 1
   classed: 'ssh'
   parsed:
     - null
     - '172.18.66.89'
-    - null
-    - '/'
-'johnivanov@172.18.66.89::/mirror-sync/otlichniy/reg/exp':
+    - ''
+  valid: True
+'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp':
+  url: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'rsync1'
-  parsed:
+  parsed_rsync:
     - 'johnivanov'
     - '172.18.66.89'
     - null
-    - '/mirror-sync/otlichniy/reg/exp'
+    - 'mirror-sync'
+    - '/otlichniy/reg/exp'
+  valid: True
+'172.18.66.89::mirror-sync/otlichniy/reg/exp':
+  url: '172.18.66.89::mirror-sync/otlichniy/reg/exp'
+  exact_match_num: 1
+  classed: 'rsync1'
+  parsed_rsync:
+    - null
+    - '172.18.66.89'
+    - null
+    - 'mirror-sync'
+    - '/otlichniy/reg/exp'
+  valid: True
+'johnivanov@172.18.66.89::/mirror-sync/otlichniy/reg/exp':
+  url: 'johnivanov@172.18.66.89::/mirror-sync/otlichniy/reg/exp'
+  exact_match_num: 0
+  classed: null
+  valid: False
 '172.18.66.89::/mirror-sync/otlichniy/reg/exp':
-  exact_match_num: 1
-  classed: 'rsync1'
-  parsed:
-    - null
-    - '172.18.66.89'
-    - null
-    - '/mirror-sync/otlichniy/reg/exp'
+  url: '172.18.66.89::/mirror-sync/otlichniy/reg/exp'
+  exact_match_num: 0
+  classed: null
+  valid: False
 '172.18.66.89::/':
-  exact_match_num: 1
-  classed: 'rsync1'
-  parsed:
-    - null
-    - '172.18.66.89'
-    - null
-    - '/'
+  url: '172.18.66.89::/'
+  exact_match_num: 0
+  classed: null
+  valid: False
 '172.18.66.89::':
+  url: '172.18.66.89::'
   exact_match_num: 1
   classed: 'rsync1'
-  parsed:
+  parsed_rsync:
     - null
     - '172.18.66.89'
     - null
-    - '/'
+    - null
+    - ''
+  valid: False
 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
+  url: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'rsync2'
-  parsed:
+  parsed_rsync:
     - 'mirror-sync'
     - '172.18.66.89'
     - 7327
-    - '/otlichniy/reg/exp'
+    - 'otlichniy'
+    - '/reg/exp'
+  valid: True
 'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp':
+  url: 'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'rsync2'
-  parsed:
+  parsed_rsync:
     - null
     - '172.18.66.89'
     - 7327
-    - '/mirror-sync/otlichniy/reg/exp'
+    - 'mirror-sync'
+    - '/otlichniy/reg/exp'
+  valid: True
 'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp':
+  url: 'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp'
   exact_match_num: 1
   classed: 'rsync2'
-  parsed:
+  parsed_rsync:
     - null
     - '172.18.66.89'
     - null
-    - '/mirror-sync/otlichniy/reg/exp'
+    - 'mirror-sync'
+    - '/otlichniy/reg/exp'
+  valid: True
 'rsync://172.18.66.89/':
+  url: 'rsync://172.18.66.89/'
   exact_match_num: 1
   classed: 'rsync2'
-  parsed:
+  parsed_rsync:
     - null
     - '172.18.66.89'
     - null
-    - '/'
+    - null
+    - ''
+  valid: False
 'rsync://172.18.66.89':
+  url: 'rsync://172.18.66.89'
   exact_match_num: 1
   classed: 'rsync2'
-  parsed:
+  parsed_rsync:
     - null
     - '172.18.66.89'
     - null
-    - '/'
+    - null
+    - ''
+  valid: False
 '/':
+  url: '/'
   exact_match_num: 1
   classed: 'path'
   parsed:
-    - null
     - null
     - null
     - '/'
+  valid: True
 'dir':
+  url: 'dir'
   exact_match_num: 1
   classed: 'path'
   parsed:
-    - null
     - null
     - null
     - 'dir'
+  valid: True
 '/dir':
+  url: '/dir'
   exact_match_num: 1
   classed: 'path'
   parsed:
-    - null
     - null
     - null
     - '/dir'
+  valid: True
 '/dir/subdir/':
+  url: '/dir/subdir/'
   exact_match_num: 1
   classed: 'path'
   parsed:
     - null
     - null
-    - null
     - '/dir/subdir/'
+  valid: True
 '':
+  url: ''
   exact_match_num: 0
   classed: null
-  parsed:
-    - null
-    - null
-    - null
-    - null
+  valid: False

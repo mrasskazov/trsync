@@ -11,7 +11,7 @@ class RsyncUrl(object):
 
     def __init__(self, remote_url):
 
-        self.url = remote_url
+        self._url = remote_url
         self._url_type = False
 
         self.regexps = {
@@ -30,7 +30,8 @@ class RsyncUrl(object):
                 r'(?P<user>[-\w]+@)?'
                 r'(?P<host>[-\.\w]+){1}'
                 r'::'
-                r'(?P<path>[\w/-]*){1}'
+                r'(?P<module>[\w-]+){1}'
+                r'(?P<path>[\w/-]*)?'
                 r'$'
             ),
             # rsync://[USER@]HOST[:PORT]/SRC
@@ -39,7 +40,8 @@ class RsyncUrl(object):
                 r'(?P<user>[-\w]+@)?'
                 r'(?P<host>[-\.\w]+){1}'
                 r'(?P<port>:[\d]+)?'
-                r'(?P<path>[\w/-]*){1}'
+                r'(?P<module>/[\w-]*)?'
+                r'(?P<path>[\w/-]*)?'
                 r'$'
             ),
             # local/path/to/directory
@@ -50,9 +52,10 @@ class RsyncUrl(object):
             ),
         }
 
-        self.match = self._get_matching_regexp()
+        self._match = self._get_matching_regexp()
         if self.match is None:
-            self.user, self.host, self.port, self.path = None, None, None, None
+            self.user, self.host, self.module, self.port, self.path = \
+                None, None, None, None, None
         else:
             self._parse_rsync_url(self.match)
 
@@ -83,17 +86,16 @@ class RsyncUrl(object):
                 if self.url_type is False:
                     self._url_type = url_type
                 regexps.append(regexp)
-            #print match, regexp.pattern
         return regexps
 
     def _parse_rsync_url(self, regexp):
         # parse remote url
 
-        for match in re.finditer(regexp, self.url):
+        for match in re.finditer(regexp, self._url):
 
             self.path = match.group('path')
-            if not self.path:
-                self.path = '/'
+            if self.path is None:
+                self.path = ''
 
             try:
                 self.host = match.group('host')
@@ -116,6 +118,38 @@ class RsyncUrl(object):
                 if self.port is not None:
                     self.port = int(self.port.strip(':'))
 
+            try:
+                self.module = match.group('module')
+            except IndexError:
+                self.module = None
+            else:
+                if self.module is not None:
+                    self.module = self.module.strip('/')
+                if not self.module:
+                    self.module = None
+
+    @property
+    def match(self):
+        return self._match
+
     @property
     def url_type(self):
         return self._url_type
+
+    @property
+    def is_valid(self):
+        if self.match is None:
+            return False
+        if self.path in (None, False):
+            return False
+        if self.url_type != 'path':
+            if self.host in ('', None, False):
+                return False
+        if self.url_type.startswith('rsync'):
+            if self.module is None:
+                return False
+        return True
+
+    @property
+    def url(self):
+        return self._url

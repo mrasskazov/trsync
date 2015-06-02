@@ -1,28 +1,67 @@
 #-*- coding: utf-8 -*-
 
-import rsync_url
+import logging
 import unittest
 import yaml
+
+import rsync_url
+
+
+logging.basicConfig(level='INFO')
+logger = logging.getLogger('TestRsyncUrl')
 
 
 class TestRsyncUrl(unittest.TestCase):
 
+    def log_locals(self, url):
+        if url.match:
+            logger.info('RE: "{}"'.format(url.match.pattern))
+        logger.info('user "{}", host "{}", port "{}", module "{}", '
+                    'path "{}"'.format(url.user, url.host, url.port,
+                                       url.module, url.path))
+
     def exact_match_num(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
         matching_regexps = url._get_all_matching_regexps()
         self.assertEqual(len(matching_regexps), expected_result)
 
     def classed(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
         self.assertEqual(url.url_type, expected_result)
 
     def parsed(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
         self.assertEqual(
-            [url.user, url.host, url.port, url.path],
+            [url.user, url.host, url.path],
             expected_result
         )
 
+    def parsed_rsync(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(
+            [url.user, url.host, url.port, url.module, url.path],
+            expected_result
+        )
+
+    def valid(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url.is_valid, expected_result)
+
+    def url(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url.url, expected_result)
 
 testdata = yaml.load(open('test_rsync_url.yaml'))
 
@@ -38,7 +77,7 @@ for remote, tests in testdata.items():
             getattr(self, test)(remote, expected_result)
 
         test_function.__name__ = \
-            'test_{}_{}_{}'.format(index, tests['classed'], test)
+            'test_rsync_url_{}_{}_{}'.format(index, tests['classed'], test)
         test_function.__doc__ = test_function.__name__
         setattr(TestRsyncUrl, test_function.__name__, test_function)
         del test_function
