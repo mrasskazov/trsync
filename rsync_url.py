@@ -1,10 +1,10 @@
 #-*- coding: utf-8 -*-
 
-import logging
 import re
+import utils
 
-logging.basicConfig(level='INFO')
-logger = logging.getLogger('RsyncUrl')
+
+logger = utils.logger.getChild('RsyncUrl')
 
 
 class RsyncUrl(object):

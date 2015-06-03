@@ -1,14 +1,13 @@
 #-*- coding: utf-8 -*-
 
-import logging
 import unittest
 import yaml
 
 import rsync_url
+import utils
 
 
-logging.basicConfig(level='INFO')
-logger = logging.getLogger('TestRsyncUrl')
+logger = utils.logger.getChild('TestRsyncUrl')
 
 
 class TestRsyncUrl(unittest.TestCase):
