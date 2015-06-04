@@ -62,18 +62,44 @@ class TestRsyncUrl(unittest.TestCase):
         self.log_locals(url)
         self.assertEqual(url.url, expected_result)
 
+    def urljoin(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
+            self.assertEqual(url.urljoin(par), er)
+
+    def dirname(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
+            self.assertEqual(url.dirname(par), er)
+
     def url_in(self, remote, expected_result):
         logger.info('"{}" - {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
         for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.url_in(par), er)
+
+    def filename(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
+            self.assertEqual(url.filename(par), er)
 
     def url_is(self, remote, expected_result):
         logger.info('"{}" - {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
         for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.url_is(par), er)
 
 testdata = yaml.load(open('test_rsync_url.yaml'))

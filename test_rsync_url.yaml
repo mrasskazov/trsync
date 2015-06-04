@@ -5,8 +5,53 @@
 #   test_function_name_3:
 #     - expected
 #     - results
+'ubuntu@172.18.66.89:~/':
+  url: 'ubuntu@172.18.66.89:~/'
+  urljoin:
+    null: 'ubuntu@172.18.66.89:~/'
+    '': 'ubuntu@172.18.66.89:~/'
+    '/': 'ubuntu@172.18.66.89:~/'
+    '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
+    'first/level': 'ubuntu@172.18.66.89:~/first/level'
+  dirname:
+    null: '/'
+    '': '/'
+    '/': '/'
+    '/first/level/': '/first/level/'
+    'first/level': 'first/level/'
+  filename:
+    null: ''
+    '': ''
+    '/': '/'
+    '/first/level/': '/first/level'
+    'first/level': 'first/level'
+  url_in:
+    null: 'ubuntu@172.18.66.89:~/'
+    '': 'ubuntu@172.18.66.89:~/'
+    '/': 'ubuntu@172.18.66.89:~/'
+    '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
+    'first/level': 'ubuntu@172.18.66.89:~/first/level/'
+  url_is:
+    null: 'ubuntu@172.18.66.89:~'
+    '': 'ubuntu@172.18.66.89:~'
+    '/': 'ubuntu@172.18.66.89:~'
+    '/first/level/': 'ubuntu@172.18.66.89:~/first/level'
+    'first/level': 'ubuntu@172.18.66.89:~/first/level'
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - 'ubuntu'
+    - '172.18.66.89'
+    - '~/'
+  valid: True
 'ubuntu@172.18.66.89:~':
   url: 'ubuntu@172.18.66.89:~'
+  urljoin:
+    null: 'ubuntu@172.18.66.89:~'
+    '': 'ubuntu@172.18.66.89:~'
+    '/': 'ubuntu@172.18.66.89:~/'
+    '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
+    'first/level': 'ubuntu@172.18.66.89:~/first/level'
   url_in:
     null: 'ubuntu@172.18.66.89:~/'
     '': 'ubuntu@172.18.66.89:~/'
@@ -64,6 +109,12 @@
   valid: True
 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp':
   url: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
+  urljoin:
+    null: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
+    '': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
+    '/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
+    '/first/level/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/first/level/'
+    'first/level': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/first/level'
   url_in:
     null: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
     '': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
@@ -128,6 +179,12 @@
   #valid: False
 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
   url: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
+  urljoin:
+    null: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
+    '': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
+    '/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
+    '/first/level/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/first/level/'
+    'first/level': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/first/level'
   url_in:
     null: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
     '': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
@@ -195,6 +252,12 @@
   valid: False
 '/':
   url: '/'
+  urljoin:
+    null: '/'
+    '': '/'
+    '/': '/'
+    '/first/level/': '/first/level/'
+    'first/level': '/first/level'
   url_in:
     null: '/'
     '': '/'

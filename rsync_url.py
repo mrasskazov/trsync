@@ -152,28 +152,56 @@ class RsyncUrl(object):
                 return False
         return True
 
-    def _url_join(self, *suburls):
-        url = self.url
-        if len(url) > 1:
-            while url.endswith(os.path.sep):
-                url = url[:-1]
+    def _fn_join(self, *parts):
+        ''' Joins filenames with ignoring empty parts (None, '', etc)'''
+        parts = [_ for _ in parts if _]
 
-        subs = os.path.sep.join([_ for _ in suburls if _]).split(os.path.sep)
+        if len(parts) > 0:
+            if parts[-1].endswith(os.path.sep):
+                isdir = True
+            else:
+                isdir = False
+            first, parts = parts[0], parts[1:]
+        else:
+            return ''
+
+        if first is None:
+            first = ''
+        if len(first) > 1:
+            while first.endswith(os.path.sep):
+                first = first[:-1]
+
+        subs = os.path.sep.join([_ for _ in parts if _]).split(os.path.sep)
         subs = [_ for _ in subs if _]
 
-        result = re.sub(r'^//', r'/', os.path.sep.join([url, ] + subs))
+        result = re.sub(r'^//', r'/', os.path.sep.join([first, ] + subs))
         result = re.sub(r'([^:])//', r'\1/', result)
+        if not result.endswith(os.path.sep) and isdir:
+            result += os.path.sep
         return result
 
     @property
     def url(self):
         return self._url
 
-    def url_in(self, *path):
-        result = self._url_join(*path)
+    def urljoin(self, *parts):
+        return self._fn_join(self.url, *parts)
+
+    def dirname(self, *path):
+        result = self._fn_join(*path)
         if not result.endswith('/'):
             result += '/'
         return result
 
+    def url_in(self, *path):
+        return self.dirname(self.url, *path)
+
+    def filename(self, *path):
+        result = self._fn_join(*path)
+        if len(result) > 1:
+            while result.endswith(os.path.sep):
+                result = result[:-1]
+        return result
+
     def url_is(self, *path):
-        return self._url_join(*path)
+        return self.filename(self.url, *path)
