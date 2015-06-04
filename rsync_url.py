@@ -158,7 +158,7 @@ class RsyncUrl(object):
             while url.endswith(os.path.sep):
                 url = url[:-1]
 
-        subs = os.path.sep.join(suburls).split(os.path.sep)
+        subs = os.path.sep.join([_ for _ in suburls if _]).split(os.path.sep)
         subs = [_ for _ in subs if _]
 
         result = re.sub(r'^//', r'/', os.path.sep.join([url, ] + subs))

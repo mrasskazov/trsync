@@ -8,11 +8,13 @@
 'ubuntu@172.18.66.89:~':
   url: 'ubuntu@172.18.66.89:~'
   url_in:
+    null: 'ubuntu@172.18.66.89:~/'
     '': 'ubuntu@172.18.66.89:~/'
     '/': 'ubuntu@172.18.66.89:~/'
     '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
     'first/level': 'ubuntu@172.18.66.89:~/first/level/'
   url_is:
+    null: 'ubuntu@172.18.66.89:~'
     '': 'ubuntu@172.18.66.89:~'
     '/': 'ubuntu@172.18.66.89:~'
     '/first/level/': 'ubuntu@172.18.66.89:~/first/level'
@@ -63,11 +65,13 @@
 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp':
   url: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
   url_in:
+    null: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
     '': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
     '/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/'
     '/first/level/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/first/level/'
     'first/level': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/first/level/'
   url_is:
+    null: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
     '': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
     '/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
     '/first/level/': 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp/first/level'
@@ -125,11 +129,13 @@
 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
   url: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
   url_in:
+    null: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
     '': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
     '/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/'
     '/first/level/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/first/level/'
     'first/level': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/first/level/'
   url_is:
+    null: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
     '': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
     '/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
     '/first/level/': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp/first/level'
@@ -190,11 +196,13 @@
 '/':
   url: '/'
   url_in:
+    null: '/'
     '': '/'
     '/': '/'
     '/first/level/': '/first/level/'
     'first/level': '/first/level/'
   url_is:
+    null: '/'
     '': '/'
     '/': '/'
     '/first/level/': '/first/level'
