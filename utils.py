@@ -37,17 +37,6 @@ def logged(logger=None):
     return wrap
 
 
-# retry decorator
-def retry(expected_status, timeout=None, attempts=None):
-
-    def wrap(f):
-        def wrapped_f(*args, **kwargs):
-            r = f(*args, **kwargs)
-            return r
-        return wrapped_f
-    return wrap
-
-
 class ResultNotProduced(Exception):
     def __init__(self, value):
         self.value = value
