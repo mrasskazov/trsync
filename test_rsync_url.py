@@ -62,6 +62,20 @@ class TestRsyncUrl(unittest.TestCase):
         self.log_locals(url)
         self.assertEqual(url.url, expected_result)
 
+    def url_in(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            self.assertEqual(url.url_in(par), er)
+
+    def url_is(self, remote, expected_result):
+        logger.info('"{}" - {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            self.assertEqual(url.url_is(par), er)
+
 testdata = yaml.load(open('test_rsync_url.yaml'))
 
 index = 1

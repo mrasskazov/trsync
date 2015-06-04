@@ -1,6 +1,8 @@
 #-*- coding: utf-8 -*-
 
+import os
 import re
+
 import utils
 
 
@@ -150,6 +152,28 @@ class RsyncUrl(object):
                 return False
         return True
 
+    def _url_join(self, *suburls):
+        url = self.url
+        if len(url) > 1:
+            while url.endswith(os.path.sep):
+                url = url[:-1]
+
+        subs = os.path.sep.join(suburls).split(os.path.sep)
+        subs = [_ for _ in subs if _]
+
+        result = re.sub(r'^//', r'/', os.path.sep.join([url, ] + subs))
+        result = re.sub(r'([^:])//', r'\1/', result)
+        return result
+
     @property
     def url(self):
         return self._url
+
+    def url_in(self, *path):
+        result = self._url_join(*path)
+        if not result.endswith('/'):
+            result += '/'
+        return result
+
+    def url_is(self, *path):
+        return self._url_join(*path)
