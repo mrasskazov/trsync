@@ -83,8 +83,6 @@ for remote, tests in testdata.items():
 
     for test, expected in tests.items():
 
-        print index, test, expected
-
         def test_function(self, test=test,
                           remote=remote, expected_result=expected):
             getattr(self, test)(remote, expected_result)
