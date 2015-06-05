@@ -193,7 +193,7 @@ class RsyncUrl(object):
             result += '/'
         return result
 
-    def url_in(self, *path):
+    def url_dir(self, *path):
         return self.a_dir(self.url, *path)
 
     def a_file(self, *path):
@@ -203,5 +203,5 @@ class RsyncUrl(object):
                 result = result[:-1]
         return result
 
-    def url_is(self, *path):
+    def url_file(self, *path):
         return self.a_file(self.url, *path)

@@ -79,13 +79,13 @@ class TestRsyncUrl(unittest.TestCase):
             logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.a_dir(par), er)
 
-    def url_in(self, remote, expected_result):
+    def url_dir(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
         for par, er in expected_result.items():
             logger.info('par = "{}", er = "{}"'.format(par, er))
-            self.assertEqual(url.url_in(par), er)
+            self.assertEqual(url.url_dir(par), er)
 
     def a_file(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
@@ -95,13 +95,13 @@ class TestRsyncUrl(unittest.TestCase):
             logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.a_file(par), er)
 
-    def url_is(self, remote, expected_result):
+    def url_file(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
         for par, er in expected_result.items():
             logger.info('par = "{}", er = "{}"'.format(par, er))
-            self.assertEqual(url.url_is(par), er)
+            self.assertEqual(url.url_file(par), er)
 
 testdata = yaml.load(open('test_rsync_url.yaml'))
 
