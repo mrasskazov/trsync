@@ -38,7 +38,7 @@ class RsyncVersioned(RsyncRemote):
         self.logger = utils.logger.getChild('RsyncVersioned.' + rsync_url)
         self.timestamp = TimeStamp()
         self.logger.info('Using timestamp {}'.format(self.timestamp))
-        self.snapshot_dir = self.root.dirname(snapshot_dir)
+        self.snapshot_dir = self.url.dirname(snapshot_dir)
         self.latest_successful_postfix = latest_successful_postfix
         self.save_latest_days = save_latest_days
 
@@ -58,15 +58,15 @@ class RsyncVersioned(RsyncRemote):
         pass
 
     def push(self, source, repo_name, extra=None):
-        latest_path = self.root.filename(
+        latest_path = self.url.filename(
             self.snapshot_dir,
-            '{}-{}'.format(self.root.filename(repo_name),
+            '{}-{}'.format(self.url.filename(repo_name),
                            self.latest_successful_postfix)
         )
-        snapshot_name = self.root.filename(
-            '{}-{}'.format(self.root.filename(repo_name), self.timestamp)
+        snapshot_name = self.url.filename(
+            '{}-{}'.format(self.url.filename(repo_name), self.timestamp)
         )
-        repo_path = self.root.filename(self.snapshot_dir, snapshot_name)
+        repo_path = self.url.filename(self.snapshot_dir, snapshot_name)
 
         # TODO: check --link-dest !!!!
         # FILESROOT=fwm/files
