@@ -68,12 +68,9 @@ class RsyncVersioned(RsyncRemote):
         )
         repo_path = self.url.filename(self.snapshot_dir, snapshot_name)
 
-        # TODO: check --link-dest !!!!
-        # FILESROOT=fwm/files
-        # OPTIONS="--archive --verbose --force --ignore-errors
-        # --delete-excluded --no-owner --no-group ${RSYNC_EXTRA_PARAMS}
-        # --delete --link-dest=/$FILESROOT/$PROJECTNAME-staging"
-        extra = '--link-dest={}'.format(latest_path)
+        extra = '--link-dest={}'.format(
+            self.url.filename(self.url.path, latest_path)
+        )
         result = super(RsyncVersioned, self).push(source, repo_path, extra)
         super(RsyncVersioned, self).symlink(repo_name, repo_path)
         super(RsyncVersioned, self).symlink(latest_path, snapshot_name)
