@@ -76,16 +76,16 @@ class RsyncRemote(object):
         '''Removes file on rsync_url.'''
         report_name = filename
         dirname, filename = os.path.split(filename)
-        dirname = self.url.dirname(dirname)
-        source = self.url.dirname(self.tmp.empty_dir)
+        dirname = self.url.a_dir(dirname)
+        source = self.url.a_dir(self.tmp.empty_dir)
         opts = "-r --delete --include={} '--exclude=*'".format(filename)
         self.logger.info('Removing file "{}"'.format(report_name))
         return self._do_rsync(source=source, dest=dirname, opts=opts)
 
     def cleandir(self, dirname):
         '''Removes directories (recursive) on rsync_url'''
-        dirname = self.url.dirname(dirname)
-        source = self.url.dirname(self.tmp.empty_dir)
+        dirname = self.url.a_dir(dirname)
+        source = self.url.a_dir(self.tmp.empty_dir)
         opts = "-a --delete"
         self.logger.info('Cleaning directory "{}"'.format(dirname))
         return self._do_rsync(source=source, dest=dirname, opts=opts)
@@ -94,11 +94,11 @@ class RsyncRemote(object):
         '''Removes directories (recursive) on rsync_url'''
         self.logger.info('Removing directory "{}"'.format(dirname))
         self.cleandir(dirname)
-        return self.rmfile(self.url.filename(dirname))
+        return self.rmfile(self.url.a_file(dirname))
 
     def mkdir(self, dirname):
         '''Creates directories (recirsive, like mkdir -p) on rsync_url'''
-        source = self.url.dirname(self.tmp.get_temp_dir(dirname))
+        source = self.url.a_dir(self.tmp.get_temp_dir(dirname))
         opts = "-a"
         self.logger.info('Creating directory "{}"'.format(dirname))
         return self._do_rsync(source=source, opts=opts)
@@ -106,7 +106,7 @@ class RsyncRemote(object):
     def symlink(self, symlink, target):
         '''Creates symlink targeted to target'''
         source = self.tmp.get_symlink_to(target)
-        symlink = self.url.filename(symlink)
+        symlink = self.url.a_file(symlink)
         opts = "-l"
         self.rmfile(symlink)
         self.logger.info('Creating symlink "{}" -> "{}"'

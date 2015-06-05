@@ -187,16 +187,16 @@ class RsyncUrl(object):
     def urljoin(self, *parts):
         return self._fn_join(self.url, *parts)
 
-    def dirname(self, *path):
+    def a_dir(self, *path):
         result = self._fn_join(*path)
         if not result.endswith('/'):
             result += '/'
         return result
 
     def url_in(self, *path):
-        return self.dirname(self.url, *path)
+        return self.a_dir(self.url, *path)
 
-    def filename(self, *path):
+    def a_file(self, *path):
         result = self._fn_join(*path)
         if len(result) > 1:
             while result.endswith(os.path.sep):
@@ -204,4 +204,4 @@ class RsyncUrl(object):
         return result
 
     def url_is(self, *path):
-        return self.filename(self.url, *path)
+        return self.a_file(self.url, *path)

@@ -16,13 +16,13 @@
     '/': 'ubuntu@172.18.66.89:~/'
     '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
     'first/level': 'ubuntu@172.18.66.89:~/first/level'
-  dirname:
+  a_dir:
     null: '/'
     '': '/'
     '/': '/'
     '/first/level/': '/first/level/'
     'first/level': 'first/level/'
-  filename:
+  a_file:
     null: ''
     '': ''
     '/': '/'

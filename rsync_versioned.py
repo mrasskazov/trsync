@@ -38,7 +38,7 @@ class RsyncVersioned(RsyncRemote):
         self.logger = utils.logger.getChild('RsyncVersioned.' + rsync_url)
         self.timestamp = TimeStamp()
         self.logger.info('Using timestamp {}'.format(self.timestamp))
-        self.snapshot_dir = self.url.dirname(snapshot_dir)
+        self.snapshot_dir = self.url.a_dir(snapshot_dir)
         self.latest_successful_postfix = latest_successful_postfix
         self.save_latest_days = save_latest_days
 
@@ -58,18 +58,18 @@ class RsyncVersioned(RsyncRemote):
         pass
 
     def push(self, source, repo_name, extra=None):
-        latest_path = self.url.filename(
+        latest_path = self.url.a_file(
             self.snapshot_dir,
-            '{}-{}'.format(self.url.filename(repo_name),
+            '{}-{}'.format(self.url.a_file(repo_name),
                            self.latest_successful_postfix)
         )
-        snapshot_name = self.url.filename(
-            '{}-{}'.format(self.url.filename(repo_name), self.timestamp)
+        snapshot_name = self.url.a_file(
+            '{}-{}'.format(self.url.a_file(repo_name), self.timestamp)
         )
-        repo_path = self.url.filename(self.snapshot_dir, snapshot_name)
+        repo_path = self.url.a_file(self.snapshot_dir, snapshot_name)
 
         extra = '--link-dest={}'.format(
-            self.url.filename(self.url.path, latest_path)
+            self.url.a_file(self.url.path, latest_path)
         )
         result = super(RsyncVersioned, self).push(source, repo_path, extra)
         super(RsyncVersioned, self).symlink(repo_name, repo_path)
