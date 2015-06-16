@@ -29,8 +29,8 @@ class RsyncVersioned(RsyncRemote):
     # possible check that rsync url is exists
     def __init__(self,
                  rsync_url,
-                 snapshot_dir='files',
-                 latest_successful_postfix='staging',
+                 snapshot_dir='snapshots',
+                 latest_successful_postfix='latest',
                  save_latest_days=14,
                  init_directory_structure=True,
                  ):
@@ -52,10 +52,11 @@ class RsyncVersioned(RsyncRemote):
 
     def init_directory_structure(self):
         # TODO: self.rsyncRemote.mkdir
-        #if self.root.url_type != 'path':
-        #server_root = rsyncRemote(self.root.urlroot)
-        #server_root.mkdir(self.root.path)
-        pass
+        if self.url.url_type != 'path':
+            server_root = RsyncRemote(self.url.root)
+            return server_root.mkdir(
+                self.url.a_dir(self.url.path, self.snapshot_dir)
+            )
 
     def push(self, source, repo_name, extra=None):
         latest_path = self.url.a_file(
