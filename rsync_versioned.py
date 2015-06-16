@@ -68,8 +68,8 @@ class RsyncVersioned(RsyncRemote):
             self.url.a_file(self.url.path, latest_path)
         )
         result = super(RsyncVersioned, self).push(source, repo_path, extra)
-        super(RsyncVersioned, self).symlink(repo_name, repo_path)
-        super(RsyncVersioned, self).symlink(latest_path, snapshot_name)
+        self.symlink(repo_name, repo_path)
+        self.symlink(latest_path, snapshot_name)
         self._remove_old_snapshots(repo_name)
         return result
 
