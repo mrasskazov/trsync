@@ -42,11 +42,6 @@ class RsyncVersioned(RsyncRemote):
         self.latest_successful_postfix = latest_successful_postfix
         self.save_latest_days = save_latest_days
 
-        # TODO: mirror_name - name of synced directory
-        # it located inside rsync_url/
-        # UPD: not needed - take it in self.push.dest patameter
-        self.mirror_name = os.path.split(rsync_url)[1]
-
         if init_directory_structure is True:
             self.init_directory_structure()
 
