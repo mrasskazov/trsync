@@ -70,4 +70,59 @@ class RsyncVersioned(RsyncRemote):
         result = super(RsyncVersioned, self).push(source, repo_path, extra)
         super(RsyncVersioned, self).symlink(repo_name, repo_path)
         super(RsyncVersioned, self).symlink(latest_path, snapshot_name)
+        self._remove_old_snapshots(repo_name)
         return result
+
+    def _remove_old_snapshots(self, repo_name, save_latest_days=None):
+        if save_latest_days is None:
+            save_latest_days = self.save_latest_days
+        if save_latest_days is None or save_latest_days is False:
+            # delete all snapshots
+            self.logger.info('Deletion all of the old snapshots '
+                             '(save_latest_days == {})'
+                             ''.format(save_latest_days))
+            save_latest_days = -1
+        elif save_latest_days == 0:
+            # skipping deletion
+            self.logger.info('Skip deletion of old snapshots '
+                             '(save_latest_days == {})'
+                             ''.format(save_latest_days))
+            return
+        else:
+            # delete snapshots older than
+            self.logger.info('Deletion all of the unlinked snapshots older '
+                             'than {0} days (save_latest_days == {0})'
+                             ''.format(save_latest_days))
+        warn_date = \
+            self.timestamp.now - datetime.timedelta(days=save_latest_days)
+        warn_date = datetime.datetime.combine(warn_date, datetime.time(0))
+        snapshots = self.ls_dirs(
+            self.url.a_dir(self.snapshot_dir),
+            pattern=r'^{}-{}$'.format(
+                repo_name,
+                self.timestamp.staging_snapshot_stamp_regexp
+            )
+        )
+        links = self.ls_symlinks(self.url.a_dir())
+        links += self.ls_symlinks(self.url.a_dir(self.snapshot_dir))
+        for s in snapshots:
+            s_date = datetime.datetime.strptime(
+                s,
+                '{}-{}'.format(repo_name,
+                               self.timestamp.staging_snapshot_stamp_format)
+            )
+            s_date = datetime.datetime.combine(s_date, datetime.time(0))
+            s_path = self.url.a_dir(self.snapshot_dir, s)
+            if s_date < warn_date:
+                s_links = [_[0] for _ in links
+                           if _[1] == s
+                           or _[1].endswith('/{}'.format(s))
+                           ]
+                if not s_links:
+                    self.rmdir(s_path)
+                else:
+                    self.logger.info('Skip deletion of "{}" because there are '
+                                     'symlinks found: {}'.format(s, s_links))
+            else:
+                self.logger.info('Skip deletion of "{}" because it newer than '
+                                 '{} days'.format(s, save_latest_days))
