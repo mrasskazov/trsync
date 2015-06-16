@@ -113,8 +113,11 @@ class RsyncRemote(object):
                          ''.format(symlink, target))
         return self._do_rsync(source=source, dest=symlink, opts=opts)
 
-    def push(self, source, dest=None, extra=None):
+    def push(self, source, repo_name=None, extra=None):
         '''Push source to destination'''
         opts = '--archive --force --ignore-errors --delete'
-        self.logger.info('Push "{}" to "{}"'.format(source, dest))
-        return self._do_rsync(source=source, dest=dest, opts=opts, extra=extra)
+        self.logger.info('Push "{}" to "{}"'.format(source, repo_name))
+        return self._do_rsync(source=source,
+                              dest=repo_name,
+                              opts=opts,
+                              extra=extra)
