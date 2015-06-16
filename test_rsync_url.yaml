@@ -16,6 +16,12 @@
     '/': 'ubuntu@172.18.66.89:~/'
     '/first/level/': 'ubuntu@172.18.66.89:~/first/level/'
     'first/level': 'ubuntu@172.18.66.89:~/first/level'
+  join:
+    null: ''
+    '': ''
+    '/': '/'
+    '/first/level/': '/first/level/'
+    'first/level': 'first/level'
   a_dir:
     null: '/'
     '': '/'
@@ -76,6 +82,36 @@
     - 'ubuntu'
     - '172.18.66.89'
     - '~'
+  valid: True
+
+
+'ubuntu@172.18.66.89:sub/dir':
+  url: 'ubuntu@172.18.66.89:sub/dir'
+  root: 'ubuntu@172.18.66.89:~/'
+  urljoin:
+    null: 'ubuntu@172.18.66.89:sub/dir'
+    '': 'ubuntu@172.18.66.89:sub/dir'
+    '/': 'ubuntu@172.18.66.89:sub/dir/'
+    '/first/level/': 'ubuntu@172.18.66.89:sub/dir/first/level/'
+    'first/level': 'ubuntu@172.18.66.89:sub/dir/first/level'
+  url_dir:
+    null: 'ubuntu@172.18.66.89:sub/dir/'
+    '': 'ubuntu@172.18.66.89:sub/dir/'
+    '/': 'ubuntu@172.18.66.89:sub/dir/'
+    '/first/level/': 'ubuntu@172.18.66.89:sub/dir/first/level/'
+    'first/level': 'ubuntu@172.18.66.89:sub/dir/first/level/'
+  url_file:
+    null: 'ubuntu@172.18.66.89:sub/dir'
+    '': 'ubuntu@172.18.66.89:sub/dir'
+    '/': 'ubuntu@172.18.66.89:sub/dir'
+    '/first/level/': 'ubuntu@172.18.66.89:sub/dir/first/level'
+    'first/level': 'ubuntu@172.18.66.89:sub/dir/first/level'
+  exact_match_num: 1
+  classed: 'ssh'
+  parsed:
+    - 'ubuntu'
+    - '172.18.66.89'
+    - 'sub/dir'
   valid: True
 
 
@@ -185,9 +221,9 @@
     '/first/level/': 'ubuntu@172.18.66.89:/first/level/'
     'first/level': 'ubuntu@172.18.66.89:/first/level/'
   url_file:
-    null: 'ubuntu@172.18.66.89:/'
-    '': 'ubuntu@172.18.66.89:/'
-    '/': 'ubuntu@172.18.66.89:/'
+    null: 'ubuntu@172.18.66.89:'
+    '': 'ubuntu@172.18.66.89:'
+    '/': 'ubuntu@172.18.66.89:'
     '/first/level/': 'ubuntu@172.18.66.89:/first/level'
     'first/level': 'ubuntu@172.18.66.89:/first/level'
   exact_match_num: 1
@@ -236,7 +272,7 @@
 
 
 '172.18.66.89:':
-  url: '172.18.66.89:'
+  url: '172.18.66.89:~'
   root: '172.18.66.89:~/'
   exact_match_num: 1
   classed: 'ssh'
@@ -246,7 +282,6 @@
     - '~'
   valid: True
 
-  # TODO: check tests behind (rsync1, rsync2 and path)
 
 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp':
   url: 'johnivanov@172.18.66.89::mirror-sync/otlichniy/reg/exp'
@@ -309,7 +344,7 @@
 
 
 '172.18.66.89::mirror-sync':
-  url: '172.18.66.89::mirror-sync'
+  url: '172.18.66.89::mirror-sync/'
   root: '172.18.66.89::mirror-sync/'
   exact_match_num: 1
   classed: 'rsync1'
@@ -359,7 +394,7 @@
 
 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp':
   url: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
-  root: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
+  root: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/'
   urljoin:
     null: 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
     '': 'rsync://mirror-sync@172.18.66.89:7327/otlichniy/reg/exp'
@@ -391,7 +426,7 @@
 
 'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp':
   url: 'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp'
-  root: 'rsync://172.18.66.89:7327/mirror-sync/otlichniy/reg/exp'
+  root: 'rsync://172.18.66.89:7327/mirror-sync/'
   exact_match_num: 1
   classed: 'rsync2'
   parsed_rsync:
@@ -405,7 +440,7 @@
 
 'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp':
   url: 'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp'
-  root: 'rsync://172.18.66.89/mirror-sync/otlichniy/reg/exp'
+  root: 'rsync://172.18.66.89/mirror-sync/'
   exact_match_num: 1
   classed: 'rsync2'
   parsed_rsync:
@@ -433,20 +468,6 @@
 
 'rsync://172.18.66.89/':
   url: 'rsync://172.18.66.89/'
-  root: 'rsync://172.18.66.89/'
-  exact_match_num: 1
-  classed: 'rsync2'
-  parsed_rsync:
-    - null
-    - '172.18.66.89'
-    - null
-    - null
-    - ''
-  valid: False
-
-
-'rsync://172.18.66.89':
-  url: 'rsync://172.18.66.89'
   root: 'rsync://172.18.66.89'
   exact_match_num: 1
   classed: 'rsync2'
@@ -455,7 +476,21 @@
     - '172.18.66.89'
     - null
     - null
-    - ''
+    - '/'
+  valid: False
+
+
+'rsync://172.18.66.89':
+  url: 'rsync://172.18.66.89/'
+  root: 'rsync://172.18.66.89'
+  exact_match_num: 1
+  classed: 'rsync2'
+  parsed_rsync:
+    - null
+    - '172.18.66.89'
+    - null
+    - null
+    - '/'
   valid: False
 
 
@@ -491,7 +526,7 @@
 
 'dir':
   url: 'dir'
-  root: 'dir'
+  root: 'dir/'
   exact_match_num: 1
   classed: 'path'
   parsed:
@@ -503,7 +538,7 @@
 
 '/dir':
   url: '/dir'
-  root: '/dir'
+  root: '/dir/'
   exact_match_num: 1
   classed: 'path'
   parsed:
@@ -523,11 +558,3 @@
     - null
     - '/dir/subdir/'
   valid: True
-
-
-'':
-  url: ''
-  root: ''
-  exact_match_num: 0
-  classed: null
-  valid: False

@@ -63,6 +63,12 @@ class TestRsyncUrl(unittest.TestCase):
         self.log_locals(url)
         self.assertEqual(url.url, expected_result)
 
+    def root(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url.root, expected_result)
+
     def urljoin(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
@@ -70,6 +76,14 @@ class TestRsyncUrl(unittest.TestCase):
         for par, er in expected_result.items():
             logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.urljoin(par), er)
+
+    def join(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            logger.info('par = "{}", er = "{}"'.format(par, er))
+            self.assertEqual(url.join(par), er)
 
     def a_dir(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
