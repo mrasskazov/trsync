@@ -51,7 +51,8 @@ class TempFiles(object):
                 subdirs.append(_)
             if type(subdirs) in (list, tuple):
                 for s in subdirs:
-                    os.makedirs(os.path.join(temp_dir, s.strip(os.path.sep)))
+                    os.makedirs(os.path.join(temp_dir,
+                                             s.strip(os.path.sep + '~')))
             else:
                 raise Exception('subdirs should be tuple or list of strings, '
                                 'but currentry subdirs == {}'.format(subdirs))
