@@ -13,6 +13,11 @@ class RsyncUrl(object):
 
     def __init__(self, remote_url):
 
+        if not remote_url:
+            msg = 'Specified rsync url == "{}"'.format(remote_url)
+            logger.error(msg)
+            raise Exception(msg)
+
         self._url = remote_url
         self._url_type = False
 
@@ -58,6 +63,7 @@ class RsyncUrl(object):
         if self.match is None:
             self.user, self.host, self.module, self.port, self.path = \
                 None, None, None, None, None
+            self._root = self.url_dir()
         else:
             self._parse_rsync_url(self.match)
 
@@ -130,6 +136,59 @@ class RsyncUrl(object):
                 if not self.module:
                     self.module = None
 
+        if self.url_type == 'ssh':
+            if self.path == '':
+                self.path = '~'
+
+            if self.path.startswith('/'):
+                self._rootpath = '/'
+            else:
+                self._rootpath = '~/'
+
+            self._netloc = '{}:'.format(self.url.split(':')[0])
+            self._root = '{}{}'.format(self._netloc, self._rootpath)
+            self._url = '{}{}'.format(self._netloc, self.path)
+
+        elif self.url_type.startswith('rsync'):
+            if self.path == '':
+                self.path = '/'
+            self._rootpath = '/'
+
+            if self.url_type == 'rsync1':
+                root_parts = ['{}::'.format(self.url.split('::')[0])]
+                if self.module is not None:
+                    root_parts.append('{}'.format(self.module))
+
+            elif self.url_type == 'rsync2':
+                root_parts = ['rsync://']
+                if self.user is not None:
+                    root_parts.append('{}@'.format(self.user))
+                root_parts.append('{}'.format(self.host))
+                if self.port is not None:
+                    root_parts.append(':{}'.format(self.port))
+                if self.module is not None:
+                    root_parts.append('/{}'.format(self.module))
+
+            self._netloc = ''.join(root_parts)
+            if self.module is not None:
+                root_parts.append('{}'.format(self._rootpath))
+            self._root = ''.join(root_parts)
+            self._url = '{}{}'.format(self._netloc, self.path)
+
+        elif self.url_type == 'path':
+            if self.path == '':
+                self.path = '.'
+            self._rootpath = self.a_dir(self.path)
+            self._netloc = None
+            self._root = self._rootpath
+            self._url = '{}'.format(self.path)
+
+        else:
+            self._netloc = None
+            self._root = self._url
+            self._url = '{}'.format(self._rootpath)
+
+
     @property
     def match(self):
         return self._match
@@ -184,8 +243,15 @@ class RsyncUrl(object):
     def url(self):
         return self._url
 
+    @property
+    def root(self):
+        return self._root
+
+    def join(self, *parts):
+        return self._fn_join(*parts)
+
     def urljoin(self, *parts):
-        return self._fn_join(self.url, *parts)
+        return self.join(self.url, *parts)
 
     def a_dir(self, *path):
         result = self._fn_join(*path)
