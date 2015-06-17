@@ -23,7 +23,7 @@ class TimeStamp(object):
         return self.staging_snapshot_stamp
 
 
-class RsyncVersioned(RsyncRemote):
+class TRsync(RsyncRemote):
     # retry and other function with mirror
     # add all the needed directory functions here, like mkdir, ls, rm etc
     # possible check that rsync url is exists
@@ -34,8 +34,8 @@ class RsyncVersioned(RsyncRemote):
                  save_latest_days=14,
                  init_directory_structure=True,
                  ):
-        super(RsyncVersioned, self).__init__(rsync_url)
-        self.logger = utils.logger.getChild('RsyncVersioned.' + rsync_url)
+        super(TRsync, self).__init__(rsync_url)
+        self.logger = utils.logger.getChild('TRsync.' + rsync_url)
         self.timestamp = TimeStamp()
         self.logger.info('Using timestamp {}'.format(self.timestamp))
         self.snapshot_dir = self.url.a_dir(snapshot_dir)
@@ -73,7 +73,7 @@ class RsyncVersioned(RsyncRemote):
         transaction = list()
         try:
             # start transaction
-            result = super(RsyncVersioned, self).push(source, repo_path, extra)
+            result = super(TRsync, self).push(source, repo_path, extra)
             transaction.append('repo_dir_created')
             self.logger.info('{}'.format(result))
 
