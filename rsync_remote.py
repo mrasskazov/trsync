@@ -105,6 +105,9 @@ class RsyncRemote(object):
 
     def symlink(self, symlink, target):
         '''Creates symlink targeted to target'''
+        # TODO: implement creating of file <symlink>.symlink on remote with
+        # info about link target, something like this
+        # <symlink> = <target>
         source = self.tmp.get_symlink_to(target)
         symlink = self.url.a_file(symlink)
         opts = "-l"
