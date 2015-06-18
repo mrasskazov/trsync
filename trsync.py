@@ -10,34 +10,37 @@ from utils import singleton
 
 @singleton
 class TimeStamp(object):
-    def __init__(self):
-        self.now = datetime.datetime.utcnow()
-        self.staging_snapshot_stamp_format = r'%Y-%m-%d-%H%M%S'
-        self.staging_snapshot_stamp_regexp = \
-            r'[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}'
-        self.staging_snapshot_stamp = \
-            self.now.strftime(self.staging_snapshot_stamp_format)
+    def __init__(self, now=None):
+        # now='2015-06-18-104259'
+        self.snapshot_stamp_format = r'%Y-%m-%d-%H%M%S'
+        self.snapshot_stamp_regexp = r'[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}'
+
+        if now is None:
+            self.now = datetime.datetime.utcnow()
+        else:
+            self.now = datetime.datetime.strptime(now,
+                                                  self.snapshot_stamp_format)
+        self.snapshot_stamp = self.now.strftime(self.snapshot_stamp_format)
 
     def __str__(self):
-        return self.staging_snapshot_stamp
+        return self.snapshot_stamp
 
 
 class TRsync(RsyncRemote):
     # retry and other function with mirror
     # add all the needed directory functions here, like mkdir, ls, rm etc
     # possible check that rsync url is exists
-    # TODO: add possibility of specify timestamp as parameter for
-    # manual fixes
     def __init__(self,
                  rsync_url,
                  snapshot_dir='snapshots',
                  latest_successful_postfix='latest',
                  save_latest_days=14,
                  init_directory_structure=True,
+                 timestamp=None,
                  ):
         super(TRsync, self).__init__(rsync_url)
         self.logger = utils.logger.getChild('TRsync.' + rsync_url)
-        self.timestamp = TimeStamp()
+        self.timestamp = TimeStamp(timestamp)
         self.logger.info('Using timestamp {}'.format(self.timestamp))
         self.snapshot_dir = self.url.a_dir(snapshot_dir)
         self.latest_successful_postfix = latest_successful_postfix
@@ -185,7 +188,7 @@ class TRsync(RsyncRemote):
             self.url.a_dir(self.snapshot_dir),
             pattern=r'^{}-{}$'.format(
                 repo_name,
-                self.timestamp.staging_snapshot_stamp_regexp
+                self.timestamp.snapshot_stamp_regexp
             )
         )
         links = self.ls_symlinks(self.url.a_dir())
@@ -194,7 +197,7 @@ class TRsync(RsyncRemote):
             s_date = datetime.datetime.strptime(
                 s,
                 '{}-{}'.format(repo_name,
-                               self.timestamp.staging_snapshot_stamp_format)
+                               self.timestamp.snapshot_stamp_format)
             )
             s_date = datetime.datetime.combine(s_date, datetime.time(0))
             s_path = self.url.a_dir(self.snapshot_dir, s)
