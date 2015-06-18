@@ -26,6 +26,8 @@ class TRsync(RsyncRemote):
     # retry and other function with mirror
     # add all the needed directory functions here, like mkdir, ls, rm etc
     # possible check that rsync url is exists
+    # TODO: add possibility of specify timestamp as parameter for
+    # manual fixes
     def __init__(self,
                  rsync_url,
                  snapshot_dir='snapshots',
@@ -66,9 +68,26 @@ class TRsync(RsyncRemote):
         extra = '--link-dest={}'.format(
             self.url.a_file(self.url.path, latest_path)
         )
+
         # TODO: retry on base class!!!!!!!!!!!!!!!
         # TODO: locking - symlink dir-timestamp.lock -> dir-timestamp
-        # TODO: write yaml file with symlink info
+        # TODO: write status file with symlink info
+        # TODO: split transaction run (push or pull), and
+        # commit/rollback functions. transaction must has possibility to
+        # rollback after commit for implementation of working with pool
+        # of servers. should be something like this:
+        #     transactions = list()
+        #     result = True
+        #     for server in servers:
+        #         transactions.append(server.push(source, repo_name))
+        #         result = result and transactions[-1].success
+        #     if result is True:
+        #         for transaction in transactions:
+        #             transaction.commit()
+        #             result = result and transactions[-1].success
+        #     if result is False:
+        #         for transaction in transactions:
+        #             transaction.rollback()
         transaction = list()
         try:
             # start transaction
