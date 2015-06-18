@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 
 import datetime
-import os
 
 import utils
 
@@ -104,8 +103,7 @@ class TRsync(RsyncRemote):
             self._remove_old_snapshots(repo_name)
             transaction.append('old_snapshots_deleted')
 
-        except RuntimeError as e:
-            #self.logger.error(e.message)
+        except RuntimeError:
             # deleting of old snapshots ignored when assessing the transaction
             # only warning
             if 'old_snapshots_deleted' not in transaction:
