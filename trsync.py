@@ -25,6 +25,9 @@ class TimeStamp(object):
     def __str__(self):
         return self.snapshot_stamp
 
+    def reinit(self, *args, **kwagrs):
+        self.__init__(*args, **kwagrs)
+
 
 class TRsync(RsyncRemote):
     # retry and other function with mirror
