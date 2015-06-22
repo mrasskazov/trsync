@@ -2,6 +2,7 @@
 #-*- coding: utf-8 -*-
 
 import os
+import sys
 
 from trsync import TRsync
 
@@ -15,22 +16,25 @@ servers = [
 ]
 
 
-workspace = os.environ.get('WORKSPACE', '.')
+workspace = os.environ.get('HOME', '.')
 repos_dir = os.path.join(workspace, 'repos/')
+if len(sys.argv) < 2:
+    print 'Using: {} <mirror_name>'
+    sys.exit(1)
+else:
+    mirror_name = sys.argv[1]
 
 
 def main():
 
     for server in servers:
-        for source in ('ubuntu/', 'centos-6/'):
-            symlink = os.path.join(repos_dir, source)
-            symlink_tgt = os.path.realpath(symlink)
-            timestamp = symlink_tgt[-17:]
-            remote = TRsync(server,
-                            timestamp=timestamp,
-                            init_directory_structure=False)
-            repo_name = source.strip('/')
-            remote.push(symlink, repo_name)
+        symlink = os.path.join(repos_dir, mirror_name + '/')
+        symlink_tgt = os.path.realpath(symlink)
+        timestamp = symlink_tgt[-17:]
+        remote = TRsync(server,
+                        timestamp=timestamp,
+                        init_directory_structure=False)
+        remote.push(symlink, mirror_name)
 
 
 if __name__ == '__main__':
