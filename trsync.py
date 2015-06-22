@@ -102,18 +102,6 @@ class TRsync(RsyncRemote):
             self.logger.info('{}'.format(result))
 
             try:
-                old_repo_name_symlink_target = \
-                    [_[1] for _ in self.ls_symlinks(repo_name)][0]
-                self.logger.info('Previous {} -> {}'
-                                 ''.format(repo_name,
-                                           old_repo_name_symlink_target))
-                status = 'updated'
-            except:
-                status = 'created'
-            self.symlink(repo_name, repo_path)
-            transaction.append('symlink_repo_name_{}'.format(status))
-
-            try:
                 old_latest_path_symlink_target = \
                     [_[1] for _ in self.ls_symlinks(latest_path)][0]
                 self.logger.info('Previous {} -> {}'
@@ -147,15 +135,6 @@ class TRsync(RsyncRemote):
                 elif 'symlink_latest_path_created' in transaction:
                     self.logger.info('Deleting symlink {}'.format(latest_path))
                     self.rmfile(latest_path)
-
-                if 'symlink_repo_name_updated' in transaction:
-                    self.logger.info('Restoring symlink {} -> {}'
-                                     ''.format(repo_name,
-                                               old_repo_name_symlink_target))
-                    self.symlink(repo_name, old_repo_name_symlink_target)
-                elif 'symlink_repo_name_created' in transaction:
-                    self.logger.info('Deleting symlink {}'.format(repo_name))
-                    self.rmfile(repo_name)
 
                 if 'repo_dir_created' in transaction:
                     self.logger.info('Removing snapshot {}'.format(repo_path))
