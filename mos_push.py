@@ -34,7 +34,10 @@ def main():
         remote = TRsync(server,
                         timestamp=timestamp,
                         init_directory_structure=False)
-        remote.push(symlink, mirror_name)
+        try:
+            remote.push(symlink, mirror_name)
+        except Exception as e:
+            print e.message
 
 
 if __name__ == '__main__':
