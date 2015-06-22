@@ -72,6 +72,16 @@ class RsyncRemote(object):
         out = [[_[0], _[-1]] for _ in out]
         return out
 
+    def symlink_target(self, symlink):
+        target = symlink
+        while True:
+            try:
+                target_path = os.path.split(target)[0]
+                target = self.ls_symlinks(target)[0][1]
+                target = os.path.join(target_path, target)
+            except:
+                return target
+
     def rmfile(self, filename):
         '''Removes file on rsync_url.'''
         report_name = filename
