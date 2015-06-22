@@ -25,6 +25,7 @@ def main():
         timestamp = symlink_tgt[-17:]
         remote = TRsync(server,
                         timestamp=timestamp,
+                        save_latest_days=365 * 2,
                         init_directory_structure=False)
         try:
             remote.push(symlink, mirror_name)
