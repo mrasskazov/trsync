@@ -113,14 +113,22 @@ class RsyncRemote(object):
         self.logger.info('Creating directory "{}"'.format(dirname))
         return self._do_rsync(source=source, opts=opts)
 
-    def symlink(self, symlink, target):
+    def symlink(self, symlink, target, create_target_file=True):
         '''Creates symlink targeted to target'''
-        # TODO: implement creating of file <symlink>.symlink on remote with
-        # info about link target, something like this
-        # <symlink> = <target>
-        source = self.tmp.get_symlink_to(target)
+
         symlink = self.url.a_file(symlink)
+        if create_target_file is True:
+            infofile = self.url.a_file('{}.target.txt'.format(symlink))
+            source = self.tmp.get_file(content='{}'.format(target))
+            temp_dir = self.tmp.last_temp_dir
+            self.rmfile(infofile)
+            self.logger.info('Creating informaion file "{}"'.format(infofile))
+            self._do_rsync(source=source, dest=infofile)
+        else:
+            temp_dir = self.tmp.get_temp_dir()
+
         opts = "-l"
+        source = self.tmp.get_symlink_to(target, temp_dir=temp_dir)
         self.rmfile(symlink)
         self.logger.info('Creating symlink "{}" -> "{}"'
                          ''.format(symlink, target))

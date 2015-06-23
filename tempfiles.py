@@ -41,6 +41,10 @@ class TempFiles(object):
         self.logger.debug(msg)
         return temp_dir
 
+    @property
+    def last_temp_dir(self):
+        return self._temp_dirs[-1]
+
     def create_subdirs(self, subdirs, temp_dir):
         if not os.path.isdir(temp_dir):
             temp_dir = self.get_temp_dir()
@@ -66,3 +70,12 @@ class TempFiles(object):
         self.logger.debug('Creates temporary symlink "{} -> {}"'
                           ''.format(linkname, target))
         return linkname
+
+    def get_file(self, content='', temp_dir=None):
+        if temp_dir is None:
+            temp_dir = self.get_temp_dir()
+        filename = tempfile.mktemp(dir=temp_dir)
+        with open(filename, 'w') as outfile:
+            outfile.write(content)
+        self.logger.debug('Creates temporary file "{}"'.format(filename))
+        return filename
