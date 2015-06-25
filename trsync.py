@@ -60,12 +60,16 @@ class TRsync(RsyncRemote):
                 self.url.a_dir(self.url.path, self.snapshot_dir)
             )
 
-    def push(self, source, repo_name, extra=None):
+    def push(self, source, repo_name, symlinks=[], extra=None):
         latest_path = self.url.a_file(
             self.snapshot_dir,
             '{}-{}'.format(self.url.a_file(repo_name),
                            self.latest_successful_postfix)
         )
+
+        symlinks = list(symlinks)
+        symlinks.insert(0, latest_path)
+
         snapshot_name = self.url.a_file(
             '{}-{}'.format(self.url.a_file(repo_name), self.timestamp)
         )
@@ -77,7 +81,6 @@ class TRsync(RsyncRemote):
 
         # TODO: retry on base class!!!!!!!!!!!!!!!
         # TODO: locking - symlink dir-timestamp.lock -> dir-timestamp
-        # TODO: write status file with symlink info
         # TODO: split transaction run (push or pull), and
         # commit/rollback functions. transaction must has possibility to
         # rollback after commit for implementation of working with pool
@@ -98,48 +101,36 @@ class TRsync(RsyncRemote):
         try:
             # start transaction
             result = super(TRsync, self).push(source, repo_path, extra)
-            transaction.append('repo_dir_created')
+            transaction.append(lambda p=repo_path: self.rmdir(p))
             self.logger.info('{}'.format(result))
 
-            try:
-                old_latest_path_symlink_target = \
-                    [_[1] for _ in self.ls_symlinks(latest_path)][0]
-                self.logger.info('Previous {} -> {}'
-                                 ''.format(latest_path,
-                                           old_latest_path_symlink_target))
-                status = 'updated'
-            except:
-                status = 'created'
-            self.symlink(latest_path, snapshot_name)
-            transaction.append('symlink_latest_path_{}'.format(status))
-
-            self._remove_old_snapshots(repo_name)
-            transaction.append('old_snapshots_deleted')
+            for symlink in symlinks:
+                try:
+                    tgt = [_[1] for _ in self.ls_symlinks(symlink)][0]
+                    self.logger.info('Previous {} -> {}'.format(symlink, tgt))
+                    undo = lambda l=symlink, t=tgt: self.symlink(l, t)
+                except:
+                    undo = lambda l=symlink: self.rmfile(l)
+                # TODO: implement detection of target relative symlink
+                if symlink.startswith(self.snapshot_dir):
+                    self.symlink(symlink, snapshot_name)
+                else:
+                    self.symlink(symlink, repo_path)
+                transaction.append(undo)
 
         except RuntimeError:
+            self.logger.error("Rollback transaction because some of sync"
+                              "operation failed")
+            [_() for _ in reversed(transaction)]
+            raise
+
+        try:
             # deleting of old snapshots ignored when assessing the transaction
             # only warning
-            if 'old_snapshots_deleted' not in transaction:
-                self.logger.warn("Old snapshots are not deleted. Ignore. "
-                                 "May be next time.")
-                transaction.append('old_snapshots_deleted')
-
-            if len(transaction) < 4:
-                # rollback transaction if some of sync operations failed
-
-                if 'symlink_latest_path_updated' in transaction:
-                    self.logger.info('Restoring symlink {} -> {}'
-                                     ''.format(latest_path,
-                                               old_latest_path_symlink_target))
-                    self.symlink(latest_path, old_latest_path_symlink_target)
-                elif 'symlink_latest_path_created' in transaction:
-                    self.logger.info('Deleting symlink {}'.format(latest_path))
-                    self.rmfile(latest_path)
-
-                if 'repo_dir_created' in transaction:
-                    self.logger.info('Removing snapshot {}'.format(repo_path))
-                    self.rmdir(repo_path)
-                raise
+            self._remove_old_snapshots(repo_name)
+        except RuntimeError:
+            self.logger.warn("Old snapshots are not deleted. Ignore. "
+                             "May be next time.")
 
         return result
 
