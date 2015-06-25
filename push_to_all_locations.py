@@ -15,6 +15,7 @@ if len(sys.argv) < 3:
 source_dir = sys.argv[1]
 mirror_name = sys.argv[2]
 
+failed = list()
 for server in servers:
     source_dir += '/'
     remote = TRsync(server,
@@ -24,3 +25,8 @@ for server in servers:
         remote.push(source_dir, mirror_name)
     except Exception as e:
         print e.message
+        failed.append(server)
+
+if failed:
+    print "Failed to push to {}".format(str(failed))
+    sys.exit(1)

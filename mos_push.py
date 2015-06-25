@@ -19,6 +19,7 @@ else:
 
 def main():
 
+    failed = list()
     for server in servers:
         symlink = os.path.join(repos_dir, mirror_name + '/')
         symlink_tgt = os.path.realpath(symlink)
@@ -31,6 +32,11 @@ def main():
             remote.push(symlink, mirror_name)
         except Exception as e:
             print e.message
+            failed.append(server)
+
+    if failed:
+        print "Failed to push to {}".format(str(failed))
+        sys.exit(1)
 
 
 if __name__ == '__main__':
