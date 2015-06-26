@@ -9,7 +9,7 @@ from trsync import TRsync
 servers = [_.strip() for _ in os.environ.get('LOCATIONS').split()]
 
 if len(sys.argv) < 3:
-    print 'Using: {} <source_dir>/ <target_mirror_name> '\
+    print 'Using: {} <source_dir> <target_mirror_name> '\
           '[<symlink_name>]..[<symlink_name>]'
     sys.exit(1)
 
@@ -19,7 +19,8 @@ symlinks = sys.argv[3:]
 
 failed = list()
 for server in servers:
-    source_dir += '/'
+    if not source_dir.endswith('/'):
+        source_dir += '/'
     remote = TRsync(server,
                     save_latest_days=365 * 2,
                     init_directory_structure=False)
