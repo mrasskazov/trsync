@@ -60,7 +60,7 @@ class TRsync(RsyncRemote):
                 self.url.a_dir(self.url.path, self.snapshot_dir)
             )
 
-    def push(self, source, repo_name, symlinks=[], extra=None):
+    def push(self, source, repo_name, symlinks=[], extra=None, save_diff=True):
         latest_path = self.url.a_file(
             self.snapshot_dir,
             '{}-{}'.format(self.url.a_file(repo_name),
@@ -103,6 +103,14 @@ class TRsync(RsyncRemote):
             result = super(TRsync, self).push(source, repo_path, extra)
             transaction.append(lambda p=repo_path: self.rmdir(p))
             self.logger.info('{}'.format(result))
+
+            if save_diff is True:
+                diff_file = self.tmp.get_file(content='{}'.format(result))
+                diff_file_name = '{}.diff.txt'.format(repo_path)
+                super(TRsync, self).push(diff_file, diff_file_name, extra)
+                transaction.append(lambda f=diff_file_name: self.rmfile(f))
+                self.logger.debug('Diff file {} created.'
+                                  ''.format(diff_file_name))
 
             for symlink in symlinks:
                 try:
