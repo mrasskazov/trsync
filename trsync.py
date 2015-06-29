@@ -189,6 +189,8 @@ class TRsync(RsyncRemote):
                            ]
                 if not s_links:
                     self.rmdir(s_path)
+                    self.rmfile(s_path + '.target.txt')
+                    self.rmfile(s_path + '.diff.txt')
                 else:
                     self.logger.info('Skip deletion of "{}" because there are '
                                      'symlinks found: {}'.format(s, s_links))
