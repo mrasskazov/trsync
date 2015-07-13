@@ -30,9 +30,7 @@ class TimeStamp(object):
 
 
 class TRsync(RsyncRemote):
-    # retry and other function with mirror
-    # add all the needed directory functions here, like mkdir, ls, rm etc
-    # possible check that rsync url is exists
+    # TODO: possible check that rsync url is exists
     def __init__(self,
                  rsync_url,
                  snapshot_dir='snapshots',
@@ -53,7 +51,6 @@ class TRsync(RsyncRemote):
             self.init_directory_structure()
 
     def init_directory_structure(self):
-        # TODO: self.rsyncRemote.mkdir
         if self.url.url_type != 'path':
             server_root = RsyncRemote(self.url.root)
             return server_root.mkdir(
@@ -79,8 +76,6 @@ class TRsync(RsyncRemote):
             self.url.a_file(self.url.path, latest_path)
         )
 
-        # TODO: retry on base class!!!!!!!!!!!!!!!
-        # TODO: locking - symlink dir-timestamp.lock -> dir-timestamp
         # TODO: split transaction run (push or pull), and
         # commit/rollback functions. transaction must has possibility to
         # rollback after commit for implementation of working with pool

@@ -27,6 +27,7 @@ class RsyncRemote(object):
         # TODO: locking:
         # https://review.openstack.org/#/c/147120/4/utils/simple_http_daemon.py
         # create lock-files on remotes during operations
+        # symlink dir-timestamp.lock -> dir-timestamp
         # for reading and writing
         # special option for ignore lock-files (for manual fixing)
         # all high-level functions (like ls) specify type of lock(read or
@@ -34,7 +35,6 @@ class RsyncRemote(object):
         # also _do_rsync uses retry for waiting wnen resource will be unlocked
         # TODO: check for url compatibility (local->remote, remote->local,
         # local->local)
-        # TODO: push method - upstream mirrors
         dest = self.url.urljoin(dest)
         allextra = self.rsync_extra_params
         if extra is not None:
