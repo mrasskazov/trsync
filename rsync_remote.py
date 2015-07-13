@@ -130,14 +130,27 @@ class RsyncRemote(object):
         self.logger.info('Creating directory "{}"'.format(dirname))
         return self._rsync_push(source=source, opts=opts)
 
-    def symlink(self, symlink, target, create_target_file=True):
+    def symlink(self, symlink, target,
+                create_target_file=True, store_history=True):
         '''Creates symlink targeted to target'''
 
         symlink = self.url.a_file(symlink)
         if create_target_file is True:
-            infofile = self.url.a_file('{}.target.txt'.format(symlink))
-            source = self.tmp.get_file(content='{}'.format(target))
-            temp_dir = self.tmp.last_temp_dir
+            infofile = '{}.target.txt'.format(symlink)
+            if store_history is True:
+                temp_dir = self.tmp.get_temp_dir()
+                source = '{}/{}'.format(temp_dir, os.path.split(infofile)[-1])
+                try:
+                    self._rsync_pull(source=infofile, dest=source)
+                    with open(source, 'r') as inf:
+                        content = '{}\n{}'.format(target, inf.read())
+                except RuntimeError:
+                    content = target
+                with open(source, 'w') as outf:
+                    outf.write(content)
+            else:
+                source = self.tmp.get_file(content='{}'.format(target))
+                temp_dir = self.tmp.last_temp_dir
             self.rmfile(infofile)
             self.logger.info('Creating informaion file "{}"'.format(infofile))
             self._rsync_push(source=source, dest=infofile)
