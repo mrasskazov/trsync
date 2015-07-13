@@ -43,6 +43,22 @@ class RsyncRemote(object):
         cmd = 'rsync {opts} {allextra} {source} {dest}'.format(**(locals()))
         return self.shell.shell(cmd)[1]
 
+    def _rsync_pull(self, source='', dest=None, opts='', extra=None):
+        source = self.url.urljoin(self.symlink_target(source))
+        #opts = '--archive --force --ignore-errors --delete --copy-dirlinks'
+        opts = '--archive --force --ignore-errors --delete'
+        # TODO: if dest is dir - detect dest on this alhorithm
+        # or don't touch it if it file
+        if dest is None:
+            raise RuntimeError('There are no "dest" specified for pull {}'
+                               ''.format(source))
+            dest = self.url.a_file(dest, os.path.split(self.url.path)[-1])
+        allextra = self.rsync_extra_params
+        if extra is not None:
+            allextra = ' '.join((allextra, extra))
+        cmd = 'rsync {opts} {allextra} {source} {dest}'.format(**(locals()))
+        return self.shell.shell(cmd)[1]
+
     def _rsync_ls(self, dirname=None, pattern=r'.*', opts=''):
         extra = '--no-v'
         out = self._rsync_push(dest=dirname, opts=opts, extra=extra)
