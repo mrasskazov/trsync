@@ -22,7 +22,7 @@ class RsyncRemote(object):
         self.url = RsyncUrl(rsync_url)
         self.rsync_extra_params = rsync_extra_params
 
-    def _do_rsync(self, source='', dest=None, opts='', extra=None):
+    def _rsync_push(self, source='', dest=None, opts='', extra=None):
         # TODO: retry for rsync
         # TODO: locking:
         # https://review.openstack.org/#/c/147120/4/utils/simple_http_daemon.py
@@ -31,8 +31,9 @@ class RsyncRemote(object):
         # for reading and writing
         # special option for ignore lock-files (for manual fixing)
         # all high-level functions (like ls) specify type of lock(read or
-        # write), and _do_rsync creates special lock file on remote.
-        # also _do_rsync uses retry for waiting wnen resource will be unlocked
+        # write), and _rsync_push creates special lock file on remote.
+        # also _rsync_push uses retry for waiting wnen resource will be
+        # unlocked
         # TODO: check for url compatibility (local->remote, remote->local,
         # local->local)
         dest = self.url.urljoin(dest)
@@ -44,7 +45,7 @@ class RsyncRemote(object):
 
     def _rsync_ls(self, dirname=None, pattern=r'.*', opts=''):
         extra = '--no-v'
-        out = self._do_rsync(dest=dirname, opts=opts, extra=extra)
+        out = self._rsync_push(dest=dirname, opts=opts, extra=extra)
         regexp = re.compile(pattern)
         out = [_ for _ in out.splitlines()
                if (_.split()[-1] != '.') and
@@ -90,7 +91,7 @@ class RsyncRemote(object):
         source = self.url.a_dir(self.tmp.empty_dir)
         opts = "-r --delete --include={} '--exclude=*'".format(filename)
         self.logger.info('Removing file "{}"'.format(report_name))
-        return self._do_rsync(source=source, dest=dirname, opts=opts)
+        return self._rsync_push(source=source, dest=dirname, opts=opts)
 
     def cleandir(self, dirname):
         '''Removes directories (recursive) on rsync_url'''
@@ -98,7 +99,7 @@ class RsyncRemote(object):
         source = self.url.a_dir(self.tmp.empty_dir)
         opts = "-a --delete"
         self.logger.info('Cleaning directory "{}"'.format(dirname))
-        return self._do_rsync(source=source, dest=dirname, opts=opts)
+        return self._rsync_push(source=source, dest=dirname, opts=opts)
 
     def rmdir(self, dirname):
         '''Removes directories (recursive) on rsync_url'''
@@ -111,7 +112,7 @@ class RsyncRemote(object):
         source = self.url.a_dir(self.tmp.get_temp_dir(dirname))
         opts = "-a"
         self.logger.info('Creating directory "{}"'.format(dirname))
-        return self._do_rsync(source=source, opts=opts)
+        return self._rsync_push(source=source, opts=opts)
 
     def symlink(self, symlink, target, create_target_file=True):
         '''Creates symlink targeted to target'''
@@ -123,7 +124,7 @@ class RsyncRemote(object):
             temp_dir = self.tmp.last_temp_dir
             self.rmfile(infofile)
             self.logger.info('Creating informaion file "{}"'.format(infofile))
-            self._do_rsync(source=source, dest=infofile)
+            self._rsync_push(source=source, dest=infofile)
         else:
             temp_dir = self.tmp.get_temp_dir()
 
@@ -132,13 +133,13 @@ class RsyncRemote(object):
         self.rmfile(symlink)
         self.logger.info('Creating symlink "{}" -> "{}"'
                          ''.format(symlink, target))
-        return self._do_rsync(source=source, dest=symlink, opts=opts)
+        return self._rsync_push(source=source, dest=symlink, opts=opts)
 
     def push(self, source, repo_name=None, extra=None):
         '''Push source to destination'''
         opts = '--archive --force --ignore-errors --delete'
         self.logger.info('Push "{}" to "{}"'.format(source, repo_name))
-        return self._do_rsync(source=source,
-                              dest=repo_name,
-                              opts=opts,
-                              extra=extra)
+        return self._rsync_push(source=source,
+                                dest=repo_name,
+                                opts=opts,
+                                extra=extra)
