@@ -17,16 +17,20 @@ else:
 
 def main():
 
+    failed = list()
     for server in servers:
         remote = TRsync(server,
                         init_directory_structure=False)
 
         try:
-            target = remote.symlink_target(symlink_target)
-            remote.symlink(symlink_name, target)
-        except:
-            continue
+            remote.symlink(symlink_name, symlink_target)
+        except Exception as e:
+            print e.message
+            failed.append(server)
 
+    if failed:
+        print "Failed to push to {}".format(str(failed))
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
