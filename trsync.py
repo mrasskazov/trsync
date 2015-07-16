@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 import datetime
+import os
 
 import utils
 
@@ -58,9 +59,10 @@ class TRsync(RsyncRemote):
             )
 
     def push(self, source, repo_name, symlinks=[], extra=None, save_diff=True):
+        repo_basename = os.path.split(repo_name)[-1]
         latest_path = self.url.a_file(
             self.snapshot_dir,
-            '{}-{}'.format(self.url.a_file(repo_name),
+            '{}-{}'.format(self.url.a_file(repo_basename),
                            self.latest_successful_postfix)
         )
 
@@ -68,7 +70,7 @@ class TRsync(RsyncRemote):
         symlinks.insert(0, latest_path)
 
         snapshot_name = self.url.a_file(
-            '{}-{}'.format(self.url.a_file(repo_name), self.timestamp)
+            '{}-{}'.format(self.url.a_file(repo_basename), self.timestamp)
         )
         repo_path = self.url.a_file(self.snapshot_dir, snapshot_name)
 
