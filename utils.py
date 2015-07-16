@@ -9,6 +9,7 @@ import time
 
 def singleton(class_):
     instances = {}
+
     def getinstance(*args, **kwargs):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
@@ -47,6 +48,27 @@ def logged(logger=None):
             return r
         return wrapped_f
     return wrap
+
+
+@singleton
+class TimeStamp(object):
+    def __init__(self, now=None):
+        # now='2015-06-18-104259'
+        self.snapshot_stamp_format = r'%Y-%m-%d-%H%M%S'
+        self.snapshot_stamp_regexp = r'[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}'
+
+        if now is None:
+            self.now = datetime.datetime.utcnow()
+        else:
+            self.now = datetime.datetime.strptime(now,
+                                                  self.snapshot_stamp_format)
+        self.snapshot_stamp = self.now.strftime(self.snapshot_stamp_format)
+
+    def __str__(self):
+        return self.snapshot_stamp
+
+    def reinit(self, *args, **kwagrs):
+        self.__init__(*args, **kwagrs)
 
 
 class ResultNotProduced(Exception):
