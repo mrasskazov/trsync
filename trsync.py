@@ -18,8 +18,9 @@ class TRsync(RsyncRemote):
                  save_latest_days=14,
                  init_directory_structure=True,
                  timestamp=None,
+                 **kwargs
                  ):
-        super(TRsync, self).__init__(rsync_url)
+        super(TRsync, self).__init__(rsync_url, **kwargs)
         self.logger = utils.logger.getChild('TRsync.' + rsync_url)
         self.timestamp = TimeStamp(timestamp)
         self.logger.info('Using timestamp {}'.format(self.timestamp))
