@@ -13,14 +13,15 @@ from rsync_url import RsyncUrl
 class RsyncRemote(object):
     def __init__(self,
                  rsync_url,
-                 rsync_extra_params='-v --no-owner --no-group',
+                 rsync_extra_params='',
                  ):
         # TODO: retry parameters for rsync
         self.logger = utils.logger.getChild('RsyncRemote.' + rsync_url)
         self.tmp = TempFiles()
         self.shell = Shell(self.logger)
         self.url = RsyncUrl(rsync_url)
-        self.rsync_extra_params = rsync_extra_params
+        self.rsync_extra_params = ' '.join(['-v --no-owner --no-group',
+                                            rsync_extra_params])
 
     def _rsync_push(self, source='', dest=None, opts='', extra=None):
         # TODO: retry for rsync
