@@ -89,7 +89,7 @@ def main():
     properties['rsync_extra_params'] = properties.pop('extra')
     properties['save_latest_days'] = \
         None if options.save_latest_days == 'None' \
-            else options.save_latest_days
+            else int(options.save_latest_days)
 
     failed = list()
     for server in servers:
