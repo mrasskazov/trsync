@@ -178,7 +178,7 @@ class TRsync(RsyncRemote):
                                self.timestamp.snapshot_stamp_format)
             )
             s_date = datetime.datetime.combine(s_date, datetime.time(0))
-            s_path = self.url.a_dir(self.snapshot_dir, s)
+            s_path = self.url.a_file(self.snapshot_dir, s)
             if s_date < warn_date:
                 s_links = [_[0] for _ in links
                            if _[1] == s
@@ -186,7 +186,6 @@ class TRsync(RsyncRemote):
                            ]
                 if not s_links:
                     self.rmdir(s_path)
-                    self.rmfile(s_path + '.target.txt')
                     self.rmfile(s_path + '.diff.txt')
                 else:
                     self.logger.info('Skip deletion of "{}" because there are '
