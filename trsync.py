@@ -32,11 +32,15 @@ class TRsync(RsyncRemote):
             self.init_directory_structure()
 
     def init_directory_structure(self):
+        dir_full_name = self.url.a_dir(self.url.path, self.snapshot_dir)
         if self.url.url_type != 'path':
             server_root = RsyncRemote(self.url.root)
-            return server_root.mkdir(
-                self.url.a_dir(self.url.path, self.snapshot_dir)
-            )
+            return server_root.mkdir(dir_full_name)
+        else:
+            if not os.path.isdir(dir_full_name):
+                return os.makedirs(dir_full_name)
+        return True
+
 
     def push(self, source, repo_name, symlinks=[], extra=None, save_diff=True):
         repo_basename = os.path.split(repo_name)[-1]
