@@ -110,6 +110,41 @@ class RsyncRemote(object):
         self.logger.info('Removing file "{}"'.format(report_name))
         return self._rsync_push(source=source, dest=dirname, opts=opts)
 
+    def rm_all(self, names=[]):
+        '''Remove all files and dirs (recursively) on list as single
+        rsync operation'''
+
+        if type(names) not in (list, tuple):
+            if type(names) is srt:
+                names = [names]
+            else:
+                raise RuntimeError('rsync_remote.rm_all has wrong parameter '
+                                   '"names" == "{}"'.format(names))
+
+        source = self.url.a_dir(self.tmp.empty_dir)
+
+        # group files by directories
+        dest_dirs = dict()
+        for name in names:
+            dirname, filename = os.path.split(name)
+            if dirname not in dest_dirs.keys():
+                dest_dirs[dirname] = list()
+            dest_dirs[dirname].append(filename)
+
+        for dest_dir, filenames in dest_dirs.items():
+            # prepare filter file for every dest_dir
+            content = ''
+            for filename in filenames:
+                content += '+ {}\n'.format(filename)
+            content += '- *'
+            filter_file = self.tmp.get_file(content=content)
+            # removing specified files on dest_dir
+            self.logger.debug('Removing objects on "{}" directory: {}'
+                              ''.format(dest_dir, str(filenames)))
+            opts = "--recursive --delete --filter='merge,p {}'"\
+                   "".format(filter_file)
+            self._rsync_push(source=source, dest=dest_dir, opts=opts)
+
     def cleandir(self, dirname):
         '''Removes directories (recursive) on rsync_url'''
         dirname = self.url.a_dir(dirname)
@@ -121,8 +156,7 @@ class RsyncRemote(object):
     def rmdir(self, dirname):
         '''Removes directories (recursive) on rsync_url'''
         self.logger.info('Removing directory "{}"'.format(dirname))
-        self.cleandir(dirname)
-        return self.rmfile(self.url.a_file(dirname))
+        return self.rm_all(self.url.a_file(dirname))
 
     def mkdir(self, dirname):
         '''Creates directories (recirsive, like mkdir -p) on rsync_url'''

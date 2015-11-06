@@ -32,11 +32,15 @@ class TRsync(RsyncRemote):
             self.init_directory_structure()
 
     def init_directory_structure(self):
+        dir_full_name = self.url.a_dir(self.url.path, self.snapshot_dir)
         if self.url.url_type != 'path':
             server_root = RsyncRemote(self.url.root)
-            return server_root.mkdir(
-                self.url.a_dir(self.url.path, self.snapshot_dir)
-            )
+            return server_root.mkdir(dir_full_name)
+        else:
+            if not os.path.isdir(dir_full_name):
+                return os.makedirs(dir_full_name)
+        return True
+
 
     def push(self, source, repo_name, symlinks=[], extra=None, save_diff=True):
         repo_basename = os.path.split(repo_name)[-1]
@@ -78,14 +82,14 @@ class TRsync(RsyncRemote):
         try:
             # start transaction
             result = super(TRsync, self).push(source, repo_path, extra)
-            transaction.append(lambda p=repo_path: self.rmdir(p))
+            transaction.append(lambda p=repo_path: self.rm_all(p))
             self.logger.info('{}'.format(result))
 
             if save_diff is True:
                 diff_file = self.tmp.get_file(content='{}'.format(result))
                 diff_file_name = '{}.diff.txt'.format(repo_path)
                 super(TRsync, self).push(diff_file, diff_file_name, extra)
-                transaction.append(lambda f=diff_file_name: self.rmfile(f))
+                transaction.append(lambda f=diff_file_name: self.rm_all(f))
                 self.logger.debug('Diff file {} created.'
                                   ''.format(diff_file_name))
 
@@ -95,7 +99,7 @@ class TRsync(RsyncRemote):
                     self.logger.info('Previous {} -> {}'.format(symlink, tgt))
                     undo = lambda l=symlink, t=tgt: self.symlink(l, t)
                 except:
-                    undo = lambda l=symlink: self.rmfile(l)
+                    undo = lambda l=symlink: self.rm_all(l)
                 # TODO: implement detection of target relative symlink
                 if symlink.startswith(self.snapshot_dir):
                     self.symlink(symlink, snapshot_name)
@@ -151,6 +155,8 @@ class TRsync(RsyncRemote):
         )
         links = self.ls_symlinks(self.url.a_dir())
         links += self.ls_symlinks(self.url.a_dir(self.snapshot_dir))
+        snapshots_to_remove = list()
+        new_snapshots = list()
         for s in snapshots:
             s_date = datetime.datetime.strptime(
                 s,
@@ -165,11 +171,20 @@ class TRsync(RsyncRemote):
                            or _[1].endswith('/{}'.format(s))
                            ]
                 if not s_links:
-                    self.rmdir(s_path)
-                    self.rmfile(s_path + '.diff.txt')
+                    snapshots_to_remove.append(s_path)
+                    snapshots_to_remove.append(s_path + '.diff.txt')
                 else:
                     self.logger.info('Skip deletion of "{}" because there are '
                                      'symlinks found: {}'.format(s, s_links))
             else:
-                self.logger.info('Skip deletion of "{}" because it newer than '
-                                 '{} days'.format(s, save_latest_days))
+                new_snapshots.append(s)
+
+        if new_snapshots:
+            self.logger.info('Skip deletion of snapshots newer than '
+                             '{} days: {}'.format(save_latest_days,
+                                                  str(new_snapshots)))
+
+        if snapshots_to_remove:
+            self.logger.info('Removing old snapshots (older then {} days): {}'
+                            ''.format(save_latest_days, str(snapshots_to_remove)))
+            self.rm_all(snapshots_to_remove)
