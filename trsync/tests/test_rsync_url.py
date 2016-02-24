@@ -1,10 +1,11 @@
 #-*- coding: utf-8 -*-
 
+import os
 import unittest
 import yaml
 
-import rsync_url
-import utils
+from trsync.objects import rsync_url as rsync_url
+from trsync.utils import utils as utils
 
 
 logger = utils.logger.getChild('TestRsyncUrl')
@@ -117,7 +118,12 @@ class TestRsyncUrl(unittest.TestCase):
             logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.url_file(par), er)
 
-testdata = yaml.load(open('test_rsync_url.yaml'))
+cpath, cname = os.path.split(os.path.realpath(os.path.realpath(__file__)))
+cname = cname.split('.')
+cname[-1] = 'yaml'
+cname = '.'.join(cname)
+cfile = os.path.join(cpath, cname)
+testdata = yaml.safe_load(open(cfile))
 
 index = 1
 for remote, tests in testdata.items():

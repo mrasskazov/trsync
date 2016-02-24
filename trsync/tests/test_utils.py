@@ -2,7 +2,7 @@
 
 import unittest
 
-import utils
+from trsync.utils import utils as utils
 
 
 logger = utils.logger.getChild('TestUtils')

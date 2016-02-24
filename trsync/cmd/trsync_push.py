@@ -6,7 +6,7 @@ import sys
 import argparse
 
 
-from trsync import TRsync
+from trsync.objects.rsync_mirror import TRsync
 
 
 def get_argparser():

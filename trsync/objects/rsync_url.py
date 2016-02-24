@@ -3,7 +3,7 @@
 import os
 import re
 
-import utils
+from trsync.utils import utils as utils
 
 
 logger = utils.logger.getChild('RsyncUrl')

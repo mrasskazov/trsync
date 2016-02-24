@@ -3,10 +3,10 @@
 import datetime
 import os
 
-import utils
+from trsync.utils import utils as utils
 
-from rsync_remote import RsyncRemote
-from utils import TimeStamp
+from trsync.objects.rsync_remote import RsyncRemote
+from trsync.utils.utils import TimeStamp
 
 
 class TRsync(RsyncRemote):

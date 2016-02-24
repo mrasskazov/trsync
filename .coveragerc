@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = trsync
+omit = trsync/openstack/*
+
+[report]
+ignore_errors = True

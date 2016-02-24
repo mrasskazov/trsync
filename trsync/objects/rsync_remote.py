@@ -3,11 +3,11 @@
 import os
 import re
 
-import utils
+from trsync.utils import utils as utils
 
-from tempfiles import TempFiles
-from shell import Shell
-from rsync_url import RsyncUrl
+from trsync.utils.tempfiles import TempFiles
+from trsync.utils.shell import Shell
+from trsync.objects.rsync_url import RsyncUrl
 
 
 class RsyncRemote(object):
@@ -115,7 +115,7 @@ class RsyncRemote(object):
         rsync operation'''
 
         if type(names) not in (list, tuple):
-            if type(names) is srt:
+            if type(names) is str:
                 names = [names]
             else:
                 raise RuntimeError('rsync_remote.rm_all has wrong parameter '
