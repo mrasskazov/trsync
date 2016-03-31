@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import unittest
@@ -25,8 +25,8 @@ class TestRsyncUrl(unittest.TestCase):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
-        matching_regexps = url._get_all_matching_regexps()
-        self.assertEqual(len(matching_regexps), expected_result)
+        matching_patterns = url._get_all_matching_patterns()
+        self.assertEqual(len(matching_patterns), expected_result)
 
     def classed(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
@@ -64,11 +64,23 @@ class TestRsyncUrl(unittest.TestCase):
         self.log_locals(url)
         self.assertEqual(url.url, expected_result)
 
+    def parsed_url(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url.parsed_url, expected_result)
+
     def root(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))
         url = rsync_url.RsyncUrl(remote)
         self.log_locals(url)
         self.assertEqual(url.root, expected_result)
+
+    def netloc(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url.netloc, expected_result)
 
     def urljoin(self, remote, expected_result):
         logger.info('For "{}" should be {}'.format(remote, expected_result))

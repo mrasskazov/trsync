@@ -63,10 +63,10 @@ class RsyncRemote(object):
     def _rsync_ls(self, dirname=None, pattern=r'.*', opts=''):
         extra = '--no-v'
         out = self._rsync_push(dest=dirname, opts=opts, extra=extra)
-        regexp = re.compile(pattern)
+        pattern = re.compile(pattern)
         out = [_ for _ in out.splitlines()
                if (_.split()[-1] != '.') and
-               (regexp.match(_.split()[-1]) is not None)]
+               (pattern.match(_.split()[-1]) is not None)]
         return out
 
     def ls(self, dirname=None, pattern=r'.*'):

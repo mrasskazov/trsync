@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import re
@@ -20,174 +20,122 @@ class RsyncUrl(object):
 
         self._url = remote_url
         self._url_type = False
+        self._sep = '/'
 
-        self.regexps = {
+        self.pattern_tpls = {
+            'protocol': r'((?P<protocol>^[^/:]+)://)',
+            'user': r'((?P<user>[^@/:]+)@)',
+            'host': r'(?P<host>[^@:/]+)',
+            'port': r'(:(?P<port>[^@:/]+))',
+            'module': r'((?P<module>[^@:/]+)/?)',
+            'path': r'(?P<path>[^@:]*$)',
+        }
+
+        self.patterns = {
             # ssh: [USER@]HOST:SRC
             'ssh': re.compile(
-                r'^'
-                r'(?P<user>[-\w]+@)?'
-                r'(?P<host>[-\.\w]+){1}'
-                r':'
-                r'(?P<path>(~{0,1}[\w/-]*)){1}'
-                r'$'
+                '^{user}?{host}:(?!//){path}?$'
+                ''.format(**self.pattern_tpls)
             ),
             # rsync: [USER@]HOST::SRC
             'rsync1': re.compile(
-                r'^'
-                r'(?P<user>[-\w]+@)?'
-                r'(?P<host>[-\.\w]+){1}'
-                r'::'
-                r'(?P<module>[\w-]+){1}'
-                r'(?P<path>[\w/-]*)?'
-                r'$'
+                '^{user}?{host}(::(?!/){module}?){path}?$'
+                ''.format(**self.pattern_tpls)
             ),
             # rsync://[USER@]HOST[:PORT]/SRC
             'rsync2': re.compile(
-                r'^rsync://'
-                r'(?P<user>[-\w]+@)?'
-                r'(?P<host>[-\.\w]+){1}'
-                r'(?P<port>:[\d]+)?'
-                r'(?P<module>/[\w-]*)?'
-                r'(?P<path>[\w/-]*)?'
-                r'$'
+                '^{protocol}{user}?{host}{port}?(/{module})?{path}?$'
+                ''.format(**self.pattern_tpls)
             ),
             # local/path/to/directory
             'path': re.compile(
-                r'^'
-                r'(?P<path>(~{0,1}[\w/-]+)){1}'
-                r'$'
+                '^{path}$'
+                ''.format(**self.pattern_tpls)
             ),
         }
 
-        self._match = self._get_matching_regexp()
+        self.templates = {
+            # ssh: [USER@]HOST:SRC
+            'ssh': ('{user}@', '{host}:', '{path}'),
+            # rsync: [USER@]HOST::SRC
+            'rsync1': ('{user}@', '{host}::', '{module}', '/{path}'),
+            # rsync://[USER@]HOST[:PORT]/SRC
+            'rsync2': ('{protocol}://', '{user}@', '{host}', ':{port}',
+                       '/{module}', '/{path}'),
+            # local/path/to/directory
+            'path': ('{path}', ),
+        }
+
+        self._match = self._get_matching_pattern()
         if self.match is None:
-            self.user, self.host, self.module, self.port, self.path = \
-                None, None, None, None, None
-            self._root = self.url_dir()
+            self._parsed_url = utils.bunch()
+            self._parsed_url.protocol = None,
+            self._parsed_url.user = None,
+            self._parsed_url.host = None,
+            self._parsed_url.port = None,
+            self._parsed_url.module = None,
+            self._parsed_url.path = None,
         else:
             self._parse_rsync_url(self.match)
 
-    def _get_matching_regexp(self):
-        regexps = self._get_all_matching_regexps()
-        regexps_len = len(regexps)
-        #if regexps_len > 1:
-        #    raise Exception('Rsync location {} matches with {} regexps {}'
-        #                    ''.format(self.url, len(regexps), str(regexps)))
-            # TODO: Possible may be better remove this raise and keep
-            # only warning with request to fail bug. rsync will parse this
-            # remote later
-        if regexps_len != 1:
-            logger.warn('Rsync location "{}" matches with {} regexps: {}.'
-                        'Please fail a bug on {} if it is wrong.'
-                        ''.format(self.url, len(regexps), str(regexps), '...'))
-        if regexps_len == 0:
+    def _get_matching_pattern(self):
+        patterns = self._get_all_matching_patterns()
+        patterns_len = len(patterns)
+        if patterns_len != 1:
+            logger.warn('Rsync location "{}" matches with {} patterns: {}.'
+                        'Please file a bug on {} if it is wrong.'
+                        ''.format(self.url,
+                                  len(patterns),
+                                  [str(_.pattern) for _ in patterns],
+                                  '...'))
+        if patterns_len == 0:
             self._url_type = None
             return None
         else:
-            return regexps[0]
+            return patterns[0]
 
-    def _get_all_matching_regexps(self):
-        regexps = list()
-        for url_type, regexp in self.regexps.items():
-            match = regexp.match(self.url)
+    def _get_all_matching_patterns(self):
+        patterns = list()
+        for url_type, pattern in self.patterns.items():
+            match = pattern.match(self.url)
             if match is not None:
                 if self.url_type is False:
                     self._url_type = url_type
-                regexps.append(regexp)
-        return regexps
+                patterns.append(pattern)
+        return patterns
 
-    def _parse_rsync_url(self, regexp):
+    def _parse_rsync_url(self, pattern):
         # parse remote url
 
-        for match in re.finditer(regexp, self._url):
-
-            self.path = match.group('path')
-            if self.path is None:
-                self.path = ''
-
-            try:
-                self.host = match.group('host')
-            except IndexError:
-                self.host = None
-
-            try:
-                self.user = match.group('user')
-            except IndexError:
-                self.user = None
-            else:
-                if self.user is not None:
-                    self.user = self.user.strip('@')
-
-            try:
-                self.port = match.group('port')
-            except IndexError:
-                self.port = None
-            else:
-                if self.port is not None:
-                    self.port = int(self.port.strip(':'))
-
-            try:
-                self.module = match.group('module')
-            except IndexError:
-                self.module = None
-            else:
-                if self.module is not None:
-                    self.module = self.module.strip('/')
-                if not self.module:
-                    self.module = None
+        match = pattern.match(self._url)
+        self._parsed_url = utils.bunch(match.groupdict())
 
         if self.url_type == 'ssh':
-            if self.path == '':
-                self.path = '~'
+            if self._parsed_url.path == '':
+                self._parsed_url.path = '~'
 
             if self.path.startswith('/'):
-                self._rootpath = '/'
+                self._parsed_url.rootpath = '/'
             else:
-                self._rootpath = '~/'
-
-            self._netloc = '{}:'.format(self.url.split(':')[0])
-            self._root = '{}{}'.format(self._netloc, self._rootpath)
-            self._url = '{}{}'.format(self._netloc, self.path)
+                self._parsed_url.rootpath = '~/'
 
         elif self.url_type.startswith('rsync'):
-            if self.path == '':
-                self.path = '/'
-            self._rootpath = '/'
+            if self._parsed_url.module:
+                if self._parsed_url.path == '':
+                    self._parsed_url.path = '/'
+                self._parsed_url.rootpath = '/'
+            else:
+                self._parsed_url.path = None
 
-            if self.url_type == 'rsync1':
-                root_parts = ['{}::'.format(self.url.split('::')[0])]
-                if self.module is not None:
-                    root_parts.append('{}'.format(self.module))
-
-            elif self.url_type == 'rsync2':
-                root_parts = ['rsync://']
-                if self.user is not None:
-                    root_parts.append('{}@'.format(self.user))
-                root_parts.append('{}'.format(self.host))
-                if self.port is not None:
-                    root_parts.append(':{}'.format(self.port))
-                if self.module is not None:
-                    root_parts.append('/{}'.format(self.module))
-
-            self._netloc = ''.join(root_parts)
-            if self.module is not None:
-                root_parts.append('{}'.format(self._rootpath))
-            self._root = ''.join(root_parts)
-            self._url = '{}{}'.format(self._netloc, self.path)
+            if self.url_type == 'rsync2':
+                if self.protocol != 'rsync':
+                    msg = 'Wrong URL protocol == "{}"'.format(self.protocol)
+                    logger.error(msg)
+                    raise Exception(msg)
 
         elif self.url_type == 'path':
-            if self.path == '':
-                self.path = '.'
-            self._rootpath = self.a_dir(self.path)
-            self._netloc = None
-            self._root = self._rootpath
-            self._url = '{}'.format(self.path)
-
-        else:
-            self._netloc = None
-            self._root = self._url
-            self._url = '{}'.format(self._rootpath)
-
+            self._sep = os.path.sep
+            self._parsed_url.rootpath = self.a_dir(self.path)
 
     @property
     def match(self):
@@ -196,6 +144,94 @@ class RsyncUrl(object):
     @property
     def url_type(self):
         return self._url_type
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def protocol(self):
+        return self._parsed_url.get('protocol', None)
+
+    @property
+    def user(self):
+        return self._parsed_url.get('user', None)
+
+    @property
+    def host(self):
+        return self._parsed_url.get('host', None)
+
+    @property
+    def port(self):
+        return self._parsed_url.get('port', None)
+
+    @property
+    def module(self):
+        return self._parsed_url.get('module', None)
+
+    @property
+    def path(self):
+        return self._parsed_url.get('path', '')
+
+    @property
+    def sep(self):
+        return self._sep
+
+    @property
+    def root(self):
+
+        templates = {
+            # ssh: [USER@]HOST:SRC
+            'ssh': ('{user}@', '{host}:', '{rootpath}'),
+            # rsync: [USER@]HOST::SRC
+            'rsync1': ('{user}@', '{host}::', '{module}'),
+            # rsync://[USER@]HOST[:PORT]/SRC
+            'rsync2': ('{protocol}://', '{user}@', '{host}', ':{port}',
+                       '/{module}'),
+            # local/path/to/directory
+            'path': ('{rootpath}', ),
+        }
+        return self.by_template(templates[self.url_type])
+
+    @property
+    def netloc(self):
+
+        templates = {
+            # ssh: [USER@]HOST:SRC
+            'ssh': ('{user}@', '{host}:'),
+            # rsync: [USER@]HOST::SRC
+            'rsync1': ('{user}@', '{host}::', '{module}'),
+            # rsync://[USER@]HOST[:PORT]/SRC
+            'rsync2': ('{protocol}://', '{user}@', '{host}', ':{port}',
+                       '/{module}'),
+            # local/path/to/directory
+            'path': ('', ),
+        }
+        return self.by_template(templates[self.url_type])
+
+    @property
+    def parsed_url(self):
+        if self.url_type is None:
+            return None
+        parsed_dict = utils.bunch()
+        for part in ('protocol', 'user', 'host', 'port', 'module', 'path',
+                     'rootpath'):
+            for tplpart in self.templates[self.url_type]:
+                if '{' + part + '}' in tplpart:
+                    value = self._parsed_url.get(part)
+                    if value:
+                        parsed_dict[part] = value
+        return parsed_dict
+
+    def by_template(self, template_list):
+        template = ''
+        for part in ('protocol', 'user', 'host', 'port', 'module', 'path',
+                     'rootpath'):
+            for tplpart in template_list:
+                if '{' + part + '}' in tplpart:
+                    if self._parsed_url.get(part):
+                        template += tplpart
+        return template.format(**self._parsed_url)
 
     @property
     def is_valid(self):
@@ -213,10 +249,11 @@ class RsyncUrl(object):
 
     def _fn_join(self, *parts):
         ''' Joins filenames with ignoring empty parts (None, '', etc)'''
+
         parts = [_ for _ in parts if _]
 
         if len(parts) > 0:
-            if parts[-1].endswith(os.path.sep):
+            if parts[-1].endswith(self.sep):
                 isdir = True
             else:
                 isdir = False
@@ -227,31 +264,24 @@ class RsyncUrl(object):
         if first is None:
             first = ''
         if len(first) > 1:
-            while first.endswith(os.path.sep):
+            while first.endswith(self.sep):
                 first = first[:-1]
 
-        subs = os.path.sep.join([_ for _ in parts if _]).split(os.path.sep)
+        subs = self.sep.join([_ for _ in parts if _]).split(self.sep)
         subs = [_ for _ in subs if _]
 
-        result = re.sub(r'^//', r'/', os.path.sep.join([first, ] + subs))
+        result = re.sub(r'^//', r'/', self.sep.join([first, ] + subs))
         result = re.sub(r'([^:])//', r'\1/', result)
-        if not result.endswith(os.path.sep) and isdir:
-            result += os.path.sep
+        if not result.endswith(self.sep) and isdir:
+            result += self.sep
         return result
-
-    @property
-    def url(self):
-        return self._url
-
-    @property
-    def root(self):
-        return self._root
 
     def join(self, *parts):
         return self._fn_join(*parts)
 
     def urljoin(self, *parts):
-        return self.join(self.url, *parts)
+        return self.join(self.by_template(self.templates[self.url_type]),
+                         *parts)
 
     def a_dir(self, *path):
         result = self._fn_join(*path)
@@ -260,14 +290,16 @@ class RsyncUrl(object):
         return result
 
     def url_dir(self, *path):
-        return self.a_dir(self.url, *path)
+        return self.a_dir(self.by_template(self.templates[self.url_type]),
+                          *path)
 
     def a_file(self, *path):
         result = self._fn_join(*path)
         if len(result) > 1:
-            while result.endswith(os.path.sep):
+            while result.endswith(self.sep):
                 result = result[:-1]
         return result
 
     def url_file(self, *path):
-        return self.a_file(self.url, *path)
+        return self.a_file(self.by_template(self.templates[self.url_type]),
+                           *path)

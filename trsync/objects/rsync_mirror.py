@@ -150,7 +150,7 @@ class TRsync(RsyncRemote):
             self.url.a_dir(self.snapshot_dir),
             pattern=r'^{}-{}$'.format(
                 repo_name,
-                self.timestamp.snapshot_stamp_regexp
+                self.timestamp.snapshot_stamp_pattern
             )
         )
         links = self.ls_symlinks(self.url.a_dir())
