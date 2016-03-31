@@ -4,13 +4,15 @@
 import os
 import sys
 import logging
-from cliff.app import App
-from cliff.commandmanager import CommandManager
-from cliff.command import Command
 
-from trsync.objects.rsync_mirror import TRsync
+from cliff import app
+from cliff import commandmanager
+from cliff import command
 
-class PushCmd(Command):
+import trsync
+from trsync.objects import rsync_mirror
+
+class PushCmd(command.Command):
     log = logging.getLogger(__name__)
 
     def get_description(self):
@@ -86,7 +88,7 @@ class PushCmd(Command):
             source_dir = os.path.realpath(source_dir)
             if not source_dir.endswith('/'):
                 source_dir += '/'
-            remote = TRsync(server, **properties)
+            remote = rsync_mirror.TRsync(server, **properties)
             try:
                 remote.push(source_dir, mirror_name, symlinks=symlinks)
             except Exception as e:
@@ -98,7 +100,7 @@ class PushCmd(Command):
             sys.exit(1)
             #self.app.stdout.write(parsed_args.arg + "\n")
 
-class RemoveCmd(Command):
+class RemoveCmd(command.Command):
     log = logging.getLogger(__name__)
 
     def get_description(self):
@@ -133,7 +135,7 @@ class RemoveCmd(Command):
 
         failed = list()
         for server in servers:
-            remote = TRsync(server, **properties)
+            remote = rsync_mirror.TRsync(server, **properties)
             try:
                 print "Removing items {}".format(str(path))
                 remote.rm_all(path)
@@ -145,14 +147,14 @@ class RemoveCmd(Command):
             print "Failed to remove {}".format(str(failed))
             sys.exit(1)
 
-class TRsyncApp(App):
+class TRsyncApp(app.App):
     log = logging.getLogger(__name__)
 
     def __init__(self):
         super(TRsyncApp, self).__init__(
             description='TRsync',
             version=trsync.__version__,
-            command_manager=CommandManager('trsync'),
+            command_manager=commandmanager.CommandManager('trsync'),
             deferred_help=True,
             )
 
