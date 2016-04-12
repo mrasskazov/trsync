@@ -81,7 +81,7 @@ def main():
     options = parser.parse_args()
     properties = vars(options)
     source_dir = properties.pop('source', None)
-    mirror_name = properties.pop('mirror_name', None)
+    mirror_name = properties.pop('mirror_name', None).strip('/')
     symlinks = properties.pop('symlinks', None)
     servers = properties.pop('dest', None)
     if properties['extra'].startswith('\\'):

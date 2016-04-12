@@ -73,7 +73,7 @@ class PushCmd(command.Command):
     def take_action(self, parsed_args):
         properties = vars(parsed_args)
         source_dir = properties.pop('source', None)
-        mirror_name = properties.pop('mirror_name', None)
+        mirror_name = properties.pop('mirror_name', None).strip('/')
         symlinks = properties.pop('symlinks', None)
         servers = properties.pop('dest', None)
         if properties['extra'].startswith('\\'):
