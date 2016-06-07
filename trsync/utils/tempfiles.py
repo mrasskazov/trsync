@@ -1,10 +1,24 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2015-2016, Mirantis, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
 
 import os
 import shutil
 import tempfile
 
-import utils
+from trsync.utils import utils as utils
 
 
 class TempFiles(object):
@@ -35,7 +49,7 @@ class TempFiles(object):
         temp_dir = tempfile.mkdtemp()
         self._temp_dirs.append(temp_dir)
         msg = 'Created temporary directory "{}"'.format(temp_dir)
-        if subdirs is not None:
+        if subdirs:
             self.create_subdirs(subdirs, temp_dir)
             msg += ' including subdirs "{}"'.format(subdirs)
         self.logger.debug(msg)
@@ -62,16 +76,19 @@ class TempFiles(object):
                                 'but currentry subdirs == {}'.format(subdirs))
         return temp_dir
 
-    def get_symlink_to(self, target, temp_dir=None):
+    def get_symlink_to(self, target, temp_dir=None, name=None):
+        if name:
+            subdirs, linkname = os.path.split(name)
         if temp_dir is None:
-            temp_dir = self.get_temp_dir()
-        linkname = tempfile.mktemp(dir=temp_dir)
+            temp_dir = self.get_temp_dir(subdirs=subdirs)
+        else:
+            linkname = tempfile.mktemp(dir=temp_dir)
         os.symlink(target.strip(os.path.sep), linkname)
         self.logger.debug('Creates temporary symlink "{} -> {}"'
                           ''.format(linkname, target))
         return linkname
 
-    def get_file(self, content='', temp_dir=None):
+    def get_file(self, content='', temp_dir=None, name=None):
         if temp_dir is None:
             temp_dir = self.get_temp_dir()
         filename = tempfile.mktemp(dir=temp_dir)
