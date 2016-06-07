@@ -33,7 +33,7 @@ def singleton(class_):
 
 
 logging.basicConfig()
-logger = logging.getLogger('safe_rsync')
+logger = logging.getLogger('trsync')
 
 loglevel = os.environ.get('LOGLEVEL', 'INFO')
 if loglevel not in ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'):
