@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 
+# Copyright (c) 2015-2016, Mirantis, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 import os
 import unittest
 import yaml
@@ -129,6 +143,23 @@ class TestRsyncUrl(unittest.TestCase):
         for par, er in expected_result.items():
             logger.info('par = "{}", er = "{}"'.format(par, er))
             self.assertEqual(url.url_file(par), er)
+
+    def split_path(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        self.assertEqual(url._split_path(remote), expected_result)
+
+    def path_relative(self, remote, expected_result):
+        logger.info('For "{}" should be {}'.format(remote, expected_result))
+        url = rsync_url.RsyncUrl(remote)
+        self.log_locals(url)
+        for par, er in expected_result.items():
+            logger.info('Test parameters\n%s',
+                        yaml.dump({remote: expected_result},
+                                  default_flow_style=False))
+            self.assertEqual(url.path_relative(par), er)
+
 
 cpath, cname = os.path.split(os.path.realpath(os.path.realpath(__file__)))
 cname = cname.split('.')

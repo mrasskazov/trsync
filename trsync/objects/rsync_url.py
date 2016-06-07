@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 
+# Copyright (c) 2015-2016, Mirantis, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 import os
 import re
 
@@ -63,7 +77,7 @@ class RsyncUrl(object):
             'rsync2': ('{protocol}://', '{user}@', '{host}', ':{port}',
                        '/{module}', '/{path}'),
             # local/path/to/directory
-            'path': ('{path}', ),
+            'path': ('{path}/', ),
         }
 
         self._match = self._get_matching_pattern()
@@ -191,7 +205,7 @@ class RsyncUrl(object):
             # local/path/to/directory
             'path': ('{rootpath}', ),
         }
-        return self.by_template(templates[self.url_type])
+        return self._by_template(templates[self.url_type])
 
     @property
     def netloc(self):
@@ -207,7 +221,7 @@ class RsyncUrl(object):
             # local/path/to/directory
             'path': ('', ),
         }
-        return self.by_template(templates[self.url_type])
+        return self._by_template(templates[self.url_type])
 
     @property
     def parsed_url(self):
@@ -223,7 +237,7 @@ class RsyncUrl(object):
                         parsed_dict[part] = value
         return parsed_dict
 
-    def by_template(self, template_list):
+    def _by_template(self, template_list):
         template = ''
         for part in ('protocol', 'user', 'host', 'port', 'module', 'path',
                      'rootpath'):
@@ -248,7 +262,7 @@ class RsyncUrl(object):
         return True
 
     def _fn_join(self, *parts):
-        ''' Joins filenames with ignoring empty parts (None, '', etc)'''
+        '''Joins filenames with ignoring empty parts (None, '', etc)'''
 
         parts = [_ for _ in parts if _]
 
@@ -280,7 +294,7 @@ class RsyncUrl(object):
         return self._fn_join(*parts)
 
     def urljoin(self, *parts):
-        return self.join(self.by_template(self.templates[self.url_type]),
+        return self.join(self._by_template(self.templates[self.url_type]),
                          *parts)
 
     def a_dir(self, *path):
@@ -290,7 +304,7 @@ class RsyncUrl(object):
         return result
 
     def url_dir(self, *path):
-        return self.a_dir(self.by_template(self.templates[self.url_type]),
+        return self.a_dir(self._by_template(self.templates[self.url_type]),
                           *path)
 
     def a_file(self, *path):
@@ -301,5 +315,48 @@ class RsyncUrl(object):
         return result
 
     def url_file(self, *path):
-        return self.a_file(self.by_template(self.templates[self.url_type]),
+        return self.a_file(self._by_template(self.templates[self.url_type]),
                            *path)
+
+    def _split_path(self, path):
+        '''Returns list of path's parts, starting from '/' for absolute path'''
+        result = list()
+        if path != '/':
+            while path.endswith('/'):
+                path = path[:-1]
+        while True:
+            path, second = os.path.split(path)
+            if second:
+                result.insert(0, second)
+            else:
+                if path:
+                    result.insert(0, path)
+                break
+        return result
+
+    def path_relative(self, path, relative=None):
+        '''Returns path evaluated as "path" relative "relative"
+
+        (relative self.path by default)
+        '''
+        if relative is None:
+            relative = self.path
+        path_dir = self._split_path(path)
+        relative_dir = self._split_path(relative)
+        if path.startswith('/'):
+            # path is absolute
+            return path
+        elif relative.startswith('/'):
+            # path relative absolute path
+            return '/' + '/'.join(relative_dir[1:] + path_dir)
+        else:
+            # path relative
+            common_index = 0
+            for i in xrange(min(len(path_dir), len(relative_dir))):
+                if path_dir[i] == relative_dir[i]:
+                    common_index += 1
+                else:
+                    break
+            updir_number = len(relative_dir[common_index:][:])
+            return '/'.join(['..' for _ in xrange(updir_number)] +
+                            path_dir[common_index:])

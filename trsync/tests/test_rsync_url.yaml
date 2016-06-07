@@ -638,6 +638,8 @@
     - null
     - '/'
   valid: True
+  split_path:
+    - '/'
 
 
 'dir':
@@ -711,3 +713,142 @@
   exact_match_num: 1
   classed: 'rsync2'
   valid: True
+
+
+'/path/to/some/file/in/some/directory':
+  classed: 'path'
+  split_path:
+    - '/'
+    - 'path'
+    - 'to'
+    - 'some'
+    - 'file'
+    - 'in'
+    - 'some'
+    - 'directory'
+
+
+'path/to/some/file/in/some/directory':
+  classed: 'path'
+  split_path:
+    - 'path'
+    - 'to'
+    - 'some'
+    - 'file'
+    - 'in'
+    - 'some'
+    - 'directory'
+
+
+'/path/to/some/file/in/some/directory/':
+  classed: 'path'
+  split_path:
+    - '/'
+    - 'path'
+    - 'to'
+    - 'some'
+    - 'file'
+    - 'in'
+    - 'some'
+    - 'directory'
+
+
+'path/to/some/file/in/some/directory/':
+  classed: 'path'
+  split_path:
+    - 'path'
+    - 'to'
+    - 'some'
+    - 'file'
+    - 'in'
+    - 'some'
+    - 'directory'
+
+
+'1/2/3/4/5':
+  classed: 'path'
+  path_relative:
+    '1/2/6/7/8':
+        '../../../6/7/8'
+    '1/2/6/7/8/9':
+        '../../../6/7/8/9'
+    '1/2/3/6/7/8/9':
+        '../../6/7/8/9'
+    '1/2':
+        '../../..'
+    '1/2/3':
+        '../..'
+    '':
+        '../../../../..'
+    '1/2/3/4/5/6/7':
+        '6/7'
+
+'1':
+  classed: 'path'
+  path_relative:
+    '1/2':
+        '2'
+    '1/2/3':
+        '2/3'
+
+'dir/to/snapshots/repo-timestamp':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        '../repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'/dir/to/snapshots/repo-timestamp':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-timestamp/dir/to/snapshots/repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'dir/to/snapshots':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        'repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'dir/to/snapshots/':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        'repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'/dir/to/snapshots':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/dir/to/snapshots/repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'/dir/to/snapshots/':
+  classed: 'path'
+  path_relative:
+    'dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/dir/to/snapshots/repo-latest'
+    '/dir/to/snapshots/repo-latest':
+        '/dir/to/snapshots/repo-latest'
+
+
+'snapshots/repo-timestamp':
+  classed: 'path'
+  path_relative:
+    'snapshots/repo-latest':
+        '../repo-latest'
+    'repo-latest':
+        '../../repo-latest'
