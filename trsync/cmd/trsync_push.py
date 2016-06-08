@@ -42,11 +42,11 @@ def get_argparser():
                         help='Specified timestamp will be used for snapshot.'
                         'Format:yyyy-mm-dd-hhMMSS')
 
-    parser.add_argument('--snapshot-dir',
+    parser.add_argument('--snapshots-dir', '--snapshot-dir',
                         required=False,
                         default='snapshots',
-                        help='Directory name for snapshots. "snapshots" '
-                        'by default')
+                        help='Directory name for snapshots relative '
+                        '"destination". "snapshots" by default')
 
     parser.add_argument('--init-directory-structure',
                         action='store_true',
@@ -55,7 +55,7 @@ def get_argparser():
                         help='It specified, all directories including'
                         '"snapshots-dir" will be created on remote location')
 
-    parser.add_argument('--save-latest-days',
+    parser.add_argument('--snapshot-lifetime', '--save-latest-days',
                         required=False,
                         default=61,
                         help='Snapshots for specified number of days will be '
@@ -99,9 +99,9 @@ def main():
     if properties['extra'].startswith('\\'):
         properties['extra'] = properties['extra'][1:]
     properties['rsync_extra_params'] = properties.pop('extra')
-    properties['save_latest_days'] = \
-        None if options.save_latest_days == 'None' \
-        else int(options.save_latest_days)
+    properties['snapshot_lifetime'] = \
+        None if options.snapshot_lifetime == 'None' \
+        else int(options.snapshot_lifetime)
 
     failed = list()
     for server in servers:
