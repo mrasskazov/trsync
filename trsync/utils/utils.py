@@ -1,5 +1,18 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
+# Copyright (c) 2015-2016, Mirantis, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
 
 import datetime
 import logging
@@ -80,15 +93,16 @@ class ResultNotProduced(Exception):
 
 
 class Retry(object):
-    """
-    Waits while the function reaches the specified status.
+    """Waits while the function reaches the specified status.
 
     :param function: function that returns some status
     :param expected_status: status the machine should turn to
     :param attempts: how many times to check status
     :param timeout: timeout in seconds before attempts
     :return: True if node moves to the specified status, False otherwise
+
     :Examples:
+
     Retry(timeout=3, attempts=10).wait(function, result, param1, param2)
     Retry().wait_result(function, result, param1, param2)
     """
