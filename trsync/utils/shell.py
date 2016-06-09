@@ -16,7 +16,7 @@
 
 
 import subprocess
-import utils
+from trsync.utils import utils as utils
 
 
 class Shell(object):
