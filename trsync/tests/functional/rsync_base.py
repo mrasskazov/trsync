@@ -19,7 +19,7 @@ import os
 import pkgutil
 
 from trsync.tests import base
-from trsync.tests import rsync_remotes as remotes
+from trsync.tests.functional import rsync_remotes as remotes
 from trsync.utils import utils as utils
 
 

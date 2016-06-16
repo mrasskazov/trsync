@@ -18,7 +18,7 @@ import logging
 import os
 
 from trsync.objects.rsync_remote import RsyncRemote
-from trsync.tests import rsync_base
+from trsync.tests.functional import rsync_base
 from trsync.utils.tempfiles import TempFiles
 
 

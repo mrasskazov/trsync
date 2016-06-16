@@ -20,7 +20,7 @@ import os
 from time import sleep
 
 from trsync.objects.rsync_mirror import TRsync
-from trsync.tests import rsync_base
+from trsync.tests.functional import rsync_base
 from trsync.utils.tempfiles import TempFiles
 
 
