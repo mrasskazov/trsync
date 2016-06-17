@@ -16,7 +16,6 @@
 # under the License.
 
 import logging
-import os
 import sys
 
 from cliff import app
@@ -26,6 +25,7 @@ from cliff import commandmanager
 import trsync
 
 from trsync.objects import rsync_mirror
+from trsync.objects import rsync_ops
 
 
 class PushCmd(command.Command):
@@ -36,7 +36,9 @@ class PushCmd(command.Command):
 
     def get_parser(self, prog_name):
         parser = super(PushCmd, self).get_parser(prog_name)
-        parser.add_argument('source', help='Source path')
+        parser.add_argument('source',
+                            help='Source rsync url (local, '
+                            'rsyncd, remote shell)')
         parser.add_argument('mirror_name', help='Mirror name')
         parser.add_argument('-d', '--dest',
                             nargs='+',
@@ -90,7 +92,7 @@ class PushCmd(command.Command):
 
     def take_action(self, parsed_args):
         properties = vars(parsed_args)
-        source_dir = properties.pop('source', None)
+        source_url = properties.pop('source', None)
         mirror_name = properties.pop('mirror_name', None).strip('/')
         symlinks = properties.pop('symlinks', None)
         servers = properties.pop('dest', None)
@@ -103,12 +105,11 @@ class PushCmd(command.Command):
 
         failed = list()
         for server in servers:
-            source_dir = os.path.realpath(source_dir)
-            if not source_dir.endswith('/'):
-                source_dir += '/'
+            source = rsync_ops.RsyncOps(source_url)
+            source_url = source.url.url_dir()
             remote = rsync_mirror.TRsync(server, **properties)
             try:
-                remote.push(source_dir, mirror_name, symlinks=symlinks)
+                remote.push(source_url, mirror_name, symlinks=symlinks)
             except Exception as e:
                 print(e.message)
                 failed.append(server)
