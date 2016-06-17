@@ -40,7 +40,10 @@ class TRsync(RsyncRemote):
                  timestamp=None,
                  **kwargs
                  ):
-        super(TRsync, self).__init__(rsync_url, **kwargs)
+        super(TRsync, self).__init__(
+            rsync_url,
+            init_directory_structure=init_directory_structure,
+            **kwargs)
         self._log = utils.logger.getChild('TRsync' + rsync_url)
         self._snapshots_dir = self.url.a_dir(snapshots_dir)
         self._latest_successful_postfix = latest_successful_postfix
