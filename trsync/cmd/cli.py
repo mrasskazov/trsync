@@ -103,7 +103,7 @@ class PushCmd(command.Command):
             None if properties['snapshot_lifetime'] == 'None' \
             else int(properties['snapshot_lifetime'])
 
-        failed = list()
+        failed = dict()
         for server in servers:
             source = rsync_ops.RsyncOps(source_url)
             source_url = source.url.url_dir()
@@ -111,13 +111,12 @@ class PushCmd(command.Command):
             try:
                 remote.push(source_url, mirror_name, symlinks=symlinks)
             except Exception as e:
-                print(e.message)
-                failed.append(server)
+                failed[server] = e.message
 
         if failed:
-            print("Failed to push to {}".format(str(failed)))
+            for srv, msg in failed.items():
+                self.log.error("Failed to push to {}".format(srv))
             sys.exit(1)
-            # self.app.stdout.write(parsed_args.arg + "\n")
 
 
 class RemoveCmd(command.Command):
@@ -154,18 +153,18 @@ class RemoveCmd(command.Command):
         properties['init_directory_structure'] = False
         properties['rsync_extra_params'] = properties.pop('extra')
 
-        failed = list()
+        failed = dict()
         for server in servers:
             remote = rsync_mirror.TRsync(server, **properties)
             try:
-                print("Removing items {}".format(str(path)))
+                self.log.info("Removing items {}".format(str(path)))
                 remote.rm_all(path)
             except Exception as e:
-                print(e.message)
-                failed.append(server)
+                failed[server] = e.message
 
         if failed:
-            print("Failed to remove {}".format(str(failed)))
+            for srv, msg in failed.items():
+                self.log.error("Failed to remove at {}".format(srv))
             sys.exit(1)
 
 
