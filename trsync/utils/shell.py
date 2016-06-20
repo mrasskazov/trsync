@@ -35,9 +35,9 @@ class Shell(object):
                                    stderr=subprocess.PIPE,
                                    shell=True)
         out, err = process.communicate()
+        self.logger.debug(out)
         if err:
             self.logger.error(err)
-        self.logger.debug(out)
         exitcode = process.returncode
         if process.returncode != 0 and raise_error:
             msg = '"{cmd}" failed. Exit code == {exitcode}'\
