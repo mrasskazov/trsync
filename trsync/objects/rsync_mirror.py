@@ -106,19 +106,19 @@ class TRsync(RsyncRemote):
         transaction = list()
         try:
             # start transaction
+            transaction.append(lambda p=repo_path: self.rsync.rm_all(p))
             result = super(TRsync, self).push(self.url.a_dir(source),
                                               repo_path,
                                               extra)
-            transaction.append(lambda p=repo_path: self.rsync.rm_all(p))
             self._log.info('{}'.format(result))
 
             if save_diff is True:
                 diff_file = self._tmp.get_file(content='{}'.format(result))
                 diff_file_name = '{}.diff.txt'.format(repo_path)
-                super(TRsync, self).push(diff_file, diff_file_name)
                 transaction.append(
                     lambda f=diff_file_name: self.rsync.rm_all(f)
                 )
+                super(TRsync, self).push(diff_file, diff_file_name)
                 self._log.debug('Diff file {} created.'
                                 ''.format(diff_file_name))
 
@@ -129,6 +129,7 @@ class TRsync(RsyncRemote):
                     undo = lambda l=symlink, t=tgt: self.rsync.symlink(l, t)
                 except Exception:
                     undo = lambda l=symlink: self.rsync.rm_all(l)
+                transaction.append(undo)
                 self.rsync.symlink(
                     symlink,
                     self.url.path_relative(
@@ -136,7 +137,6 @@ class TRsync(RsyncRemote):
                         os.path.split(symlink)[0]
                     )
                 )
-                transaction.append(undo)
 
         except RuntimeError:
             self._log.error("Rollback transaction because some of sync"
