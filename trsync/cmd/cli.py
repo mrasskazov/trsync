@@ -103,20 +103,28 @@ class PushCmd(command.Command):
             None if properties['snapshot_lifetime'] == 'None' \
             else int(properties['snapshot_lifetime'])
 
-        failed = dict()
+        report = dict()
+        exitcode = 0
         for server in servers:
             source = rsync_ops.RsyncOps(source_url)
             source_url = source.url.url_dir()
-            remote = rsync_mirror.TRsync(server, **properties)
+            report[server] = dict()
             try:
+                remote = rsync_mirror.TRsync(server, **properties)
                 remote.push(source_url, mirror_name, symlinks=symlinks)
+                report[server]['success'] = True
             except Exception as e:
-                failed[server] = e.message
+                report[server]['success'] = False
+                report[server]['log'] = e.message
+                exitcode = 1
 
-        if failed:
-            for srv, msg in failed.items():
-                self.log.error("Failed to push to {}".format(srv))
-            sys.exit(1)
+        for srv, msg in report.items():
+            if msg['success']:
+                self.log.info('Push %s to %s: SUCCESS' % (source_url, srv))
+            else:
+                self.log.error('Push %s to %s: FAILED' % (source_url, srv))
+
+        sys.exit(exitcode)
 
 
 class RemoveCmd(command.Command):
@@ -150,22 +158,29 @@ class RemoveCmd(command.Command):
         path = properties.pop('path', None)
         if properties['extra'].startswith('\\'):
             properties['extra'] = properties['extra'][1:]
-        properties['init_directory_structure'] = False
         properties['rsync_extra_params'] = properties.pop('extra')
 
-        failed = dict()
+        report = dict()
+        exitcode = 0
         for server in servers:
-            remote = rsync_mirror.TRsync(server, **properties)
+            report[server] = dict()
+            self.log.info("Removing items {}".format(str(path)))
             try:
-                self.log.info("Removing items {}".format(str(path)))
+                remote = rsync_ops.RsyncOps(server, **properties)
                 remote.rm_all(path)
+                report[server]['success'] = True
             except Exception as e:
-                failed[server] = e.message
+                report[server]['success'] = False
+                report[server]['log'] = e.message
+                exitcode = 1
 
-        if failed:
-            for srv, msg in failed.items():
-                self.log.error("Failed to remove at {}".format(srv))
-            sys.exit(1)
+        for srv, msg in report.items():
+            if msg['success']:
+                self.log.info('Remove %s: SUCCESS' % (path))
+            else:
+                self.log.error('Remove %s: FAILED' % (path))
+
+        sys.exit(exitcode)
 
 
 class TRsyncApp(app.App):
