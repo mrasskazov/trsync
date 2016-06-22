@@ -37,17 +37,20 @@ class PushCmd(command.Command):
     def get_parser(self, prog_name):
         parser = super(PushCmd, self).get_parser(prog_name)
         parser.add_argument('source',
-                            help='Source rsync url (local, '
-                            'rsyncd, remote shell)')
-        parser.add_argument('mirror_name', help='Mirror name')
+                            help='Source rsync url (local, rsyncd, remote '
+                            'shell). Mean that it is a directory, not a file.')
+        parser.add_argument('mirror_name',
+                            help='Mirror name. Will contain the source/ '
+                            'content on remote.')
         parser.add_argument('-d', '--dest',
                             nargs='+',
                             required=True,
-                            help='Destination rsync url')
+                            help='Destination rsync url(s)')
         parser.add_argument('-t', '--timestamp',
                             required=False,
                             help='Specified timestamp will be used for '
-                            'snapshot. Format:yyyy-mm-dd-hhMMSS')
+                            'snapshot. Will be generated automaticaly by '
+                            'default. Format:yyyy-mm-dd-hhMMSS')
         parser.add_argument('--snapshots-dir', '--snapshot-dir',
                             required=False,
                             default='snapshots',
@@ -59,7 +62,7 @@ class PushCmd(command.Command):
                             default=False,
                             help='It specified, all directories including'
                             '"snapshots-dir" will be created on remote '
-                            'location')
+                            'location. Disabled by default.')
         parser.add_argument('--snapshot-lifetime', '--save-latest-days',
                             required=False,
                             default=61,
@@ -79,7 +82,7 @@ class PushCmd(command.Command):
                             required=False,
                             default=[],
                             help='Update additional symlinks relative '
-                            'destination')
+                            'destination. Only "latest" by default.')
         parser.add_argument('--extra',
                             required=False,
                             default='',
