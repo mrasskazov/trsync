@@ -16,6 +16,7 @@
 # under the License.
 
 import logging
+import os
 import sys
 
 from cliff import app
@@ -40,9 +41,17 @@ class PushCmd(command.Command):
         parser.add_argument('source',
                             help='Source rsync url (local, rsyncd, remote '
                             'shell). Mean that it is a directory, not a file.')
-        parser.add_argument('mirror_name',
-                            help='Mirror name. Will contain the source/ '
-                            'content on remote.')
+        parser.add_argument('-n', '--snapshot-name',
+                            default='',
+                            required=False,
+                            help='Snapshot name. Source url directory name by '
+                            'default. Will contain the source/ '
+                            'content on remote. Full snapshot name will be '
+                            '"{snapshot-name}-{timestamp}". Snapshot will be '
+                            'placed in directory specified by '
+                            '"--snapshots-dir" option. Also '
+                            '"{snapshot-name}-latest" symlink will be updated '
+                            'on successful sync (--latest-successful-postfix)')
         parser.add_argument('-d', '--dest',
                             nargs='+',
                             required=True,
@@ -97,7 +106,7 @@ class PushCmd(command.Command):
     def take_action(self, parsed_args):
         properties = vars(parsed_args)
         source_url = properties.pop('source', None)
-        mirror_name = properties.pop('mirror_name', None).strip('/')
+        snapshot_name = properties.pop('snapshot_name', '').strip(' /')
         symlinks = properties.pop('symlinks', None)
         servers = properties.pop('dest', None)
         if properties['extra'].startswith('\\'):
@@ -107,15 +116,22 @@ class PushCmd(command.Command):
             None if properties['snapshot_lifetime'] == 'None' \
             else int(properties['snapshot_lifetime'])
 
+        source = rsync_ops.RsyncOps(source_url)
+        source_url = source.url.url_dir()
+        if not snapshot_name:
+            snapshot_name = os.path.basename(source.url.path)
+        if not snapshot_name:
+            raise RuntimeError("Can't detect 'snapshot_name'. "
+                               "Use '-n' option to specify it.")
+
         report = dict()
         exitcode = 0
+
         for server in servers:
-            source = rsync_ops.RsyncOps(source_url)
-            source_url = source.url.url_dir()
             report[server] = dict()
             try:
                 remote = rsync_mirror.TRsync(server, **properties)
-                remote.push(source_url, mirror_name, symlinks=symlinks)
+                remote.push(source_url, snapshot_name, symlinks=symlinks)
                 report[server]['success'] = True
             except Exception as e:
                 report[server]['success'] = False
