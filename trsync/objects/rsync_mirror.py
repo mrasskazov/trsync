@@ -53,7 +53,6 @@ class TRsync(RsyncRemote):
         self._log.info('Using timestamp {}'.format(self.timestamp))
 
         if init_directory_structure is True:
-            super(TRsync, self)._init_directory_structure()
             self._init_snapshots_dir()
 
     def _init_snapshots_dir(self):
