@@ -126,6 +126,7 @@ class PushCmd(command.Command):
                 self.log.info('Push %s to %s: SUCCESS' % (source_url, srv))
             else:
                 self.log.error('Push %s to %s: FAILED' % (source_url, srv))
+                self.log.error(msg['log'])
 
         sys.exit(exitcode)
 
