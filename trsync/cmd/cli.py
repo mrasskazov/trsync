@@ -131,6 +131,89 @@ class PushCmd(command.Command):
         sys.exit(exitcode)
 
 
+class SymlinkCmd(command.Command):
+    log = logging.getLogger(__name__)
+
+    def get_description(self):
+        return "Create (or update) symlinks on remote"
+
+    def get_parser(self, prog_name):
+        parser = super(SymlinkCmd, self).get_parser(prog_name)
+        parser.add_argument('-d', '--dest',
+                            nargs='+',
+                            required=True,
+                            help='Destination rsync url (local, rsyncd, '
+                            'remote shell).')
+        parser.add_argument('-t', '--target',
+                            required=True,
+                            help='All the symlinks will target to (relative '
+                            'symlink name). Url by default.')
+        parser.add_argument('-s', '--symlinks',
+                            nargs='+',
+                            required=True,
+                            default=[],
+                            help='Update specified symlinks (names relative '
+                            'dest).')
+        parser.add_argument('--update',
+                            action='store_true',
+                            required=False,
+                            default=False,
+                            help='It specified, all existent symlinks will be '
+                            'updated. Will be skiped otherwise. Disabled by '
+                            'default.')
+        parser.add_argument('--extra',
+                            required=False,
+                            default='',
+                            help='String with additional rsync parameters. '
+                            'For example it may be "\--dry-run '
+                            '--any-rsync-option".Use "\\" to disable '
+                            'argparse to parse extra value.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        properties = vars(parsed_args)
+        symlinks = properties.pop('symlinks', [])
+        for symlink in symlinks:
+            if symlink.startswith('/') or symlink.startswith('../'):
+                self.log.error('Symlink name outside the root url: %s',
+                               symlink)
+                raise RuntimeError('Symlink name the root url: {}'
+                                   ''.format(symlink))
+        servers = properties.pop('dest', None)
+        target = properties.pop('target', None)
+        if properties['extra'].startswith('\\'):
+            properties['extra'] = properties['extra'][1:]
+        properties['rsync_extra_params'] = properties.pop('extra')
+        update = properties.pop('update', None)
+
+        report = dict()
+        exitcode = 0
+
+        for server in servers:
+            report[server] = dict()
+            try:
+                remote = rsync_ops.RsyncOps(server, **properties)
+                for symlink in symlinks:
+                    remote.symlink(symlink, target, update=update)
+                report[server]['success'] = True
+            except Exception as e:
+                report[server]['success'] = False
+                report[server]['log'] = e.message
+                exitcode = 1
+
+        for srv, msg in report.items():
+            if msg['success']:
+                self.log.info('Creating symlinks %s targeted to %s on %s: '
+                              'SUCCESS' % (str(symlinks), target, srv))
+            else:
+                self.log.error('Creating symlinks %s targeted to %s on %s: '
+                               'FAILED' % (str(symlinks), target, srv))
+                self.log.error(msg['log'])
+
+        sys.exit(exitcode)
+
+
 class RemoveCmd(command.Command):
     log = logging.getLogger(__name__)
 
