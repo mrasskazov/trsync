@@ -198,9 +198,13 @@ class RsyncOps(object):
         return self.push(source=source, opts=opts)
 
     def symlink(self, symlink, target,
-                create_target_file=True, store_history=True):
+                create_target_file=True, store_history=True, update=True):
         '''Creates symlink targeted to target'''
 
+        # check that symlink already exists on remote
+        if not update:
+            if self.ls_symlinks(symlink):
+                raise RuntimeError('Symlink {} already exists'.format(symlink))
         temp_dir = self._tmp.get_temp_dir()
         remote_path, symlink = os.path.split(self.url.a_file(symlink))
         # check that target is exists on remote

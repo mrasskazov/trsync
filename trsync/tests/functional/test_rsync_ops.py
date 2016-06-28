@@ -299,6 +299,11 @@ class TestRsyncOps(rsync_base.TestRsyncBase):
             self.assertRaises(RuntimeError,
                               ops.symlink, 'snapshots/symlink2', 'dir2')
 
+            # update existent symlink with update=False
+            self.assertRaises(RuntimeError,
+                              ops.symlink, 'snapshots/symlink1', 'dir2',
+                              update=False)
+
             # update existent symlink
             os.makedirs(os.path.join(remote.path, 'snapshots/dir2'))
             ops.symlink('snapshots/symlink1', 'dir2')
