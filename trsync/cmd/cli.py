@@ -26,6 +26,7 @@ import trsync
 
 from trsync.objects import rsync_mirror
 from trsync.objects import rsync_ops
+from trsync.objects import rsync_url
 
 
 class PushCmd(command.Command):
@@ -268,6 +269,39 @@ class RemoveCmd(command.Command):
                 self.log.error('Remove %s: FAILED' % (path))
 
         sys.exit(exitcode)
+
+
+class GetTargetCmd(command.Command):
+    log = logging.getLogger(__name__)
+
+    def get_description(self):
+        return "Evaluate the target for specified symlink "\
+            "(optional recursively)"
+
+    def get_parser(self, prog_name):
+        parser = super(GetTargetCmd, self).get_parser(prog_name)
+
+        parser.add_argument('symlink_url',
+                            help='Symlink url to resolve (supported by rsync)')
+        parser.add_argument('-r', '--recursive',
+                            action='store_true',
+                            required=False,
+                            default=False,
+                            help='It specified, the symlink will be resolved '
+                            'recursively (if the symlink targeted to other '
+                            'symlinks tree - they will be resolved too). '
+                            'Disabled by default.')
+        return parser
+
+    def take_action(self, parsed_args):
+        properties = vars(parsed_args)
+        symlink_url = properties.pop('symlink_url', None)
+        recursive = properties.pop('recursive', False)
+
+        url = rsync_url.RsyncUrl(symlink_url)
+        remote = rsync_ops.RsyncOps(url.root, **properties)
+        target = remote.symlink_target(url.path, recursive=recursive)
+        print(target)
 
 
 class TRsyncApp(app.App):
