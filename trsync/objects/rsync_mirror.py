@@ -59,7 +59,7 @@ class TRsync(RsyncRemote):
         dir_full_name = self.url.a_dir(self.url.path, self._snapshots_dir)
         if dir_full_name not in ['', '/']:
             if self.url.url_type != 'path':
-                rsync_root = RsyncOps(self.url.root)
+                rsync_root = RsyncOps(self.url.root, self._rsync_extra_params)
                 rsync_root.mk_dir(dir_full_name)
             else:
                 if not os.path.isdir(dir_full_name):
