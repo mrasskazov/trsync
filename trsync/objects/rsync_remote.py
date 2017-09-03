@@ -35,6 +35,7 @@ class RsyncRemote(object):
                  ):
         self._log = utils.logger.getChild('RsyncRemote.' + rsync_url)
         self._tmp = TempFiles()
+        self._rsync_extra_params = rsync_extra_params
         self.rsync = RsyncOps(
             rsync_url,
             rsync_extra_params=' '.join(['-v --no-owner --no-group',
@@ -48,7 +49,7 @@ class RsyncRemote(object):
         dir_full_name = self.url.a_dir(self.url.path)
         if dir_full_name not in ['', '/']:
             if self.url.url_type != 'path':
-                rsync_root = RsyncOps(self.url.root)
+                rsync_root = RsyncOps(self.url.root, self._rsync_extra_params)
                 rsync_root.mk_dir(dir_full_name)
             else:
                 if not os.path.isdir(dir_full_name):
